@@ -74,27 +74,43 @@ input,textarea{width:100%;padding:8px;margin:5px 0}
 
 <!-- SETTINGS -->
 <div id="settings" class="page">
-<h2>계정 설정 (gyejeong)</h2>
+<h2>계정 설정</h2>
 
 <div class="box">
-닉네임
+<h4>프로필</h4>
+
+<label>닉네임</label>
 <input id="snick">
-상태메시지
+
+<label>프로필 이미지</label>
+<input type="file" onchange="uploadProfile(event)">
+
+<label>상태메시지</label>
 <input id="sstatus">
-자기소개
+
+<label>자기소개</label>
 <textarea id="sbio"></textarea>
+
 <button onclick="saveProfile()">저장</button>
 </div>
 
 <div class="box">
-<h3>환경 설정</h3>
-<button onclick="toggleTheme()">다크/라이트</button>
+<h4>디스플레이</h4>
+
+<div style="display:flex;justify-content:space-between;align-items:center">
+<span>다크 모드</span>
+<button onclick="toggleTheme()">전환</button>
+</div>
+
 </div>
 
 <div class="box">
-<button onclick="deleteAccount()">계정 삭제</button>
+<h4>보안</h4>
+<button onclick="deleteAccount()" style="background:#ff4d6d">계정 삭제</button>
 </div>
+
 </div>
+
 
 <!-- ADMIN -->
 <div id="admin" class="page">
@@ -212,12 +228,42 @@ function renderChat(){
  let c=get("chat");
  let me=JSON.parse(localStorage.getItem("me"));
  chatBox.innerHTML="";
+
  c.forEach(m=>{
- chatBox.innerHTML+=
- `<div class="${m.u==me.nick?'chat-me':'chat-you'}">
- ${m.u}: ${m.t}</div>`;
+
+ const mine = 
+ (m.side==="right" && m.u===me.nick) ||
+ (m.side==="left" && me.role==="artist" && m.u===me.nick);
+
+ chatBox.innerHTML+=`
+
+ <div style="display:flex;gap:8px;align-items:flex-end;
+ ${m.side==="right"?'justify-content:flex-end':''}">
+
+ ${m.side==="left"?`
+ <img src="${m.img}" 
+ style="width:34px;height:34px;border-radius:50%;background:#ccc">
+ `:""}
+
+ <div class="${m.side==="right"?'chat-me':'chat-you'}">
+
+ ${m.side==="left"?`<b style="font-size:12px">${m.u}</b><br>`:""}
+
+ ${m.text}
+
+ <div style="font-size:10px;opacity:.6;text-align:right">
+ ${new Date(m.time).toLocaleTimeString()}
+ </div>
+
+ </div>
+
+ </div>
+ `;
  });
+
+ updateDash();
 }
+
 
 // ---------- COMMUNITY ----------
 function post(){
@@ -270,7 +316,66 @@ function deleteAccount(){
 }
 
 load();
-</script>
+ renderChatHeader();
 
+
+ function uploadProfile(e){
+ const file=e.target.files[0];
+ const reader=new FileReader();
+
+ reader.onload=function(){
+  let me=JSON.parse(localStorage.getItem("me"));
+  let users=get("users");
+
+  users.forEach(u=>{
+   if(u.id==me.id){
+    u.img=reader.result;
+    localStorage.setItem("me",JSON.stringify(u));
+   }
+  });
+
+  set("users",users);
+  renderProfile();
+ }
+
+ reader.readAsDataURL(file);
+}
+
+let fanMode=false;
+
+ function renderChatHeader(){
+ let me=JSON.parse(localStorage.getItem("me"));
+ const header=document.getElementById("chatHeader");
+
+ if(me.role==="artist"){
+
+ header.innerHTML=`
+ <div class="box" style="display:flex;align-items:center;gap:12px">
+
+ <img src="${me.img||''}" 
+ style="width:40px;height:40px;border-radius:50%;background:#ccc">
+
+ <b>${me.nick}</b>
+
+ <button onclick="toggleFanMode()">
+ ${fanMode?"아티스트로 보내기":"팬으로 보내기"}
+ </button>
+
+ </div>
+ `;
+
+ } else {
+
+ header.innerHTML="";
+ }
+}
+function toggleFanMode(){
+ fanMode=!fanMode;
+ toast(fanMode?"팬 모드 ON":"아티스트 모드 ON");
+ renderChatHeader();
+}
+
+
+</script>
 </body>
 </html>
