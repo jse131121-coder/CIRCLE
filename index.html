@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Platform</title>
+
+<style>
+body{font-family:sans-serif;background:#111;color:white;margin:0}
+header{padding:10px;background:#000;display:flex;gap:10px}
+button{cursor:pointer}
+.page{display:none;padding:20px}
+input,textarea{width:100%;padding:8px;margin:5px 0}
+.box{background:#1b1b1b;padding:15px;border-radius:8px;margin:10px 0}
+.chat-me{text-align:right;color:#7cff7c}
+.chat-you{text-align:left;color:#7cc7ff}
+.dark{background:#111;color:white}
+.light{background:#f2f2f2;color:black}
+</style>
+</head>
+
+<body>
+
+<header id="menu" style="display:none">
+<button onclick="show('dashboard')">홈</button>
+<button onclick="show('chat')">채팅</button>
+<button onclick="show('community')">커뮤니티</button>
+<button onclick="show('settings')">계정</button>
+<button onclick="show('admin')">관리자</button>
+<button onclick="logout()">로그아웃</button>
+</header>
+
+<!-- LOGIN -->
+<div id="login" class="page">
+<h2>로그인</h2>
+<input id="lid" placeholder="아이디">
+<input id="lpw" type="password" placeholder="비번">
+<button onclick="login()">로그인</button>
+
+<h3>회원가입</h3>
+<input id="rid" placeholder="아이디">
+<input id="rpw" type="password" placeholder="비번">
+<input id="rnick" placeholder="닉네임">
+<select id="rrole">
+<option value="user">유저</option>
+<option value="artist">아티스트</option>
+<option value="admin">관리자</option>
+</select>
+<button onclick="register()">가입</button>
+</div>
+
+<!-- DASH -->
+<div id="dashboard" class="page">
+<h2>대시보드</h2>
+<div id="profileCard"></div>
+<div class="box">공지 배너 영역</div>
+</div>
+
+<!-- CHAT -->
+<div id="chat" class="page">
+<h2>채팅</h2>
+<div id="chatBox"></div>
+<input id="msg">
+<button onclick="sendMsg()">전송</button>
+</div>
+
+<!-- COMMUNITY -->
+<div id="community" class="page">
+<h2>커뮤니티</h2>
+<input id="ptitle" placeholder="제목">
+<textarea id="pcontent"></textarea>
+<button onclick="post()">글쓰기</button>
+<div id="posts"></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings" class="page">
+<h2>계정 설정 (gyejeong)</h2>
+
+<div class="box">
+닉네임
+<input id="snick">
+상태메시지
+<input id="sstatus">
+자기소개
+<textarea id="sbio"></textarea>
+<button onclick="saveProfile()">저장</button>
+</div>
+
+<div class="box">
+<h3>환경 설정</h3>
+<button onclick="toggleTheme()">다크/라이트</button>
+</div>
+
+<div class="box">
+<button onclick="deleteAccount()">계정 삭제</button>
+</div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin" class="page">
+<h2>관리자 패널</h2>
+<div id="userList"></div>
+</div>
+
+<script>
+// ---------- DB ----------
+function get(k){ return JSON.parse(localStorage.getItem(k))||[]}
+function set(k,v){ localStorage.setItem(k,JSON.stringify(v))}
+
+// ---------- AUTH ----------
+function register(){
+ let u=get("users");
+ let id=rid.value;
+ if(u.find(x=>x.id==id)) return alert("중복");
+
+ u.push({
+ id, pw:rpw.value, nick:rnick.value,
+ role:rrole.value,
+ bio:"", status:"", theme:"dark"
+ });
+ set("users",u);
+ alert("가입완료");
+}
+
+function login(){
+ let u=get("users");
+ let me=u.find(x=>x.id==lid.value && x.pw==lpw.value);
+ if(!me) return alert("실패");
+ localStorage.setItem("me",JSON.stringify(me));
+ load();
+}
+
+function logout(){
+ localStorage.removeItem("me");
+ location.reload();
+}
+
+// ---------- INIT ----------
+function load(){
+ let me=JSON.parse(localStorage.getItem("me"));
+ if(!me) return show("login");
+
+ menu.style.display="flex";
+ show("dashboard");
+ applyTheme();
+ renderProfile();
+ renderChat();
+ renderPosts();
+ renderAdmin();
+}
+
+function show(p){
+ document.querySelectorAll(".page").forEach(x=>x.style.display="none");
+ document.getElementById(p).style.display="block";
+}
+
+// ---------- PROFILE ----------
+function renderProfile(){
+ let me=JSON.parse(localStorage.getItem("me"));
+ profileCard.innerHTML=`
+<div class="box">
+<b>${me.nick}</b> (${me.role})<br>
+${me.status}<br>${me.bio}
+</div>`;
+ snick.value=me.nick;
+ sstatus.value=me.status;
+ sbio.value=me.bio;
+}
+
+function saveProfile(){
+ let me=JSON.parse(localStorage.getItem("me"));
+ let users=get("users");
+
+ users.forEach(u=>{
+ if(u.id==me.id){
+ u.nick=snick.value;
+ u.status=sstatus.value;
+ u.bio=sbio.value;
+ localStorage.setItem("me",JSON.stringify(u));
+ }
+ });
+
+ set("users",users);
+ alert("저장됨");
+ renderProfile();
+}
+
+// ---------- THEME ----------
+function toggleTheme(){
+ let me=JSON.parse(localStorage.getItem("me"));
+ me.theme = me.theme=="dark"?"light":"dark";
+ localStorage.setItem("me",JSON.stringify(me));
+ applyTheme();
+}
+
+function applyTheme(){
+ let me=JSON.parse(localStorage.getItem("me"));
+ document.body.className=me.theme;
+}
+
+// ---------- CHAT ----------
+function sendMsg(){
+ let c=get("chat");
+ let me=JSON.parse(localStorage.getItem("me"));
+ c.push({u:me.nick,t:msg.value});
+ set("chat",c);
+ msg.value="";
+ renderChat();
+}
+
+function renderChat(){
+ let c=get("chat");
+ let me=JSON.parse(localStorage.getItem("me"));
+ chatBox.innerHTML="";
+ c.forEach(m=>{
+ chatBox.innerHTML+=
+ `<div class="${m.u==me.nick?'chat-me':'chat-you'}">
+ ${m.u}: ${m.t}</div>`;
+ });
+}
+
+// ---------- COMMUNITY ----------
+function post(){
+ let p=get("posts");
+ let me=JSON.parse(localStorage.getItem("me"));
+ p.push({t:ptitle.value,c:pcontent.value,w:me.nick});
+ set("posts",p);
+ renderPosts();
+}
+
+function renderPosts(){
+ let p=get("posts");
+ posts.innerHTML="";
+ p.forEach(x=>{
+ posts.innerHTML+=`
+ <div class="box">
+ <b>${x.t}</b><br>${x.c}<br>${x.w}
+ </div>`;
+ });
+}
+
+// ---------- ADMIN ----------
+function renderAdmin(){
+ let me=JSON.parse(localStorage.getItem("me"));
+ if(me.role!=="admin") return;
+
+ let u=get("users");
+ userList.innerHTML="";
+ u.forEach(x=>{
+ userList.innerHTML+=`
+ <div class="box">
+ ${x.id} (${x.role})
+ <button onclick="ban('${x.id}')">삭제</button>
+ </div>`;
+ });
+}
+
+function ban(id){
+ let u=get("users").filter(x=>x.id!==id);
+ set("users",u);
+ renderAdmin();
+}
+
+// ---------- DELETE ----------
+function deleteAccount(){
+ let me=JSON.parse(localStorage.getItem("me"));
+ let u=get("users").filter(x=>x.id!==me.id);
+ set("users",u);
+ logout();
+}
+
+load();
+</script>
+
+</body>
+</html>
