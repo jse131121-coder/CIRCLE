@@ -1,381 +1,169 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>Platform</title>
-
+<meta charset="UTF-8" />
+<title>CIRCLE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
-body{font-family:sans-serif;background:#111;color:white;margin:0}
-header{padding:10px;background:#000;display:flex;gap:10px}
-button{cursor:pointer}
-.page{display:none;padding:20px}
-input,textarea{width:100%;padding:8px;margin:5px 0}
-.box{background:#1b1b1b;padding:15px;border-radius:8px;margin:10px 0}
-.chat-me{text-align:right;color:#7cff7c}
-.chat-you{text-align:left;color:#7cc7ff}
-.dark{background:#111;color:white}
-.light{background:#f2f2f2;color:black}
+*{box-sizing:border-box;font-family:system-ui, -apple-system, BlinkMacSystemFont, sans-serif}
+body{margin:0;background:#f5f6f8}
+header{background:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e6e6e6}
+.logo{font-weight:900;letter-spacing:1px}
+.btn{border:none;border-radius:20px;padding:8px 16px;cursor:pointer}
+.arrive{background:#111;color:#fff}
+.container{max-width:760px;margin:20px auto;padding:0 14px}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 6px 14px rgba(0,0,0,.04)}
+.flex{display:flex;align-items:center;gap:10px}
+.avatar{width:38px;height:38px;border-radius:50%;background:#ddd;object-fit:cover}
+.badge{font-size:12px;background:#e9f1ff;color:#2563eb;padding:2px 6px;border-radius:6px}
+.pinned{background:#fff3cd;color:#9a6700;font-size:12px;padding:4px 8px;border-radius:12px;margin-left:auto}
+.post-title{font-weight:800;letter-spacing:3px}
+.post-meta{font-size:12px;color:#777;margin-top:4px}
+.post-content{margin-top:12px;line-height:1.5}
+.comment-box{margin-top:12px;padding-top:12px;border-top:1px solid #eee}
+.comment{font-size:14px;margin-top:8px}
+.reply{margin-left:22px;color:#444}
+.write-box textarea{width:100%;border-radius:10px;border:1px solid #ddd;padding:10px;resize:none}
+.write-actions{display:flex;justify-content:space-between;margin-top:8px}
+input[type="text"]{padding:6px;border-radius:8px;border:1px solid #ddd;width:100%}
+small{color:#999}
 </style>
 </head>
-
 <body>
-
-<header id="menu" style="display:none">
-<button onclick="show('dashboard')">홈</button>
-<button onclick="show('chat')">채팅</button>
-<button onclick="show('community')">커뮤니티</button>
-<button onclick="show('settings')">계정</button>
-<button onclick="show('admin')">관리자</button>
-<button onclick="logout()">로그아웃</button>
+<header>
+  <div class="logo">CIRCLE</div>
+  <button class="btn arrive" onclick="login()">ARRIVE</button>
 </header>
 
-<!-- LOGIN -->
-<div id="login" class="page">
-<h2>로그인</h2>
-<input id="lid" placeholder="아이디">
-<input id="lpw" type="password" placeholder="비번">
-<button onclick="login()">로그인</button>
+<div class="container">
 
-<h3>회원가입</h3>
-<input id="rid" placeholder="아이디">
-<input id="rpw" type="password" placeholder="비번">
-<input id="rnick" placeholder="닉네임">
-<select id="rrole">
-<option value="user">유저</option>
-<option value="artist">아티스트</option>
-<option value="admin">관리자</option>
-</select>
-<button onclick="register()">가입</button>
+<!-- 글쓰기 -->
+<div class="card write-box">
+  <div class="flex">
+    <img id="myAvatar" class="avatar" />
+    <strong id="myName">Guest</strong>
+    <span id="myBadge" class="badge">USER</span>
+  </div>
+  <textarea id="postText" rows="3" placeholder="무슨 이야기를 나누고 싶어?"></textarea>
+  <input id="imageLink" type="text" placeholder="이미지 링크 (선택)" />
+  <div class="write-actions">
+    <label><input type="checkbox" id="pinCheck" /> 고정</label>
+    <button class="btn arrive" onclick="addPost()">게시</button>
+  </div>
 </div>
 
-<!-- DASH -->
-<div id="dashboard" class="page">
-<h2>대시보드</h2>
-<div id="profileCard"></div>
-<div class="box">공지 배너 영역</div>
-</div>
+<!-- 게시글 영역 -->
+<div id="postList"></div>
 
-<!-- CHAT -->
-<div id="chat" class="page">
-<h2>채팅</h2>
-<div id="chatBox"></div>
-<input id="msg">
-<button onclick="sendMsg()">전송</button>
-</div>
-
-<!-- COMMUNITY -->
-<div id="community" class="page">
-<h2>커뮤니티</h2>
-<input id="ptitle" placeholder="제목">
-<textarea id="pcontent"></textarea>
-<button onclick="post()">글쓰기</button>
-<div id="posts"></div>
-</div>
-
-<!-- SETTINGS -->
-<div id="settings" class="page">
-<h2>계정 설정</h2>
-
-<div class="box">
-<h4>프로필</h4>
-
-<label>닉네임</label>
-<input id="snick">
-
-<label>프로필 이미지</label>
-<input type="file" onchange="uploadProfile(event)">
-
-<label>상태메시지</label>
-<input id="sstatus">
-
-<label>자기소개</label>
-<textarea id="sbio"></textarea>
-
-<button onclick="saveProfile()">저장</button>
-</div>
-
-<div class="box">
-<h4>디스플레이</h4>
-
-<div style="display:flex;justify-content:space-between;align-items:center">
-<span>다크 모드</span>
-<button onclick="toggleTheme()">전환</button>
-</div>
-
-</div>
-
-<div class="box">
-<h4>보안</h4>
-<button onclick="deleteAccount()" style="background:#ff4d6d">계정 삭제</button>
-</div>
-
-</div>
-
-
-<!-- ADMIN -->
-<div id="admin" class="page">
-<h2>관리자 패널</h2>
-<div id="userList"></div>
 </div>
 
 <script>
-// ---------- DB ----------
-function get(k){ return JSON.parse(localStorage.getItem(k))||[]}
-function set(k,v){ localStorage.setItem(k,JSON.stringify(v))}
-
-// ---------- AUTH ----------
-function register(){
- let u=get("users");
- let id=rid.value;
- if(u.find(x=>x.id==id)) return alert("중복");
-
- u.push({
- id, pw:rpw.value, nick:rnick.value,
- role:rrole.value,
- bio:"", status:"", theme:"dark"
- });
- set("users",u);
- alert("가입완료");
-}
+let user = JSON.parse(localStorage.getItem('circleUser')) || null;
+let posts = JSON.parse(localStorage.getItem('circlePosts')) || [];
 
 function login(){
- let u=get("users");
- let me=u.find(x=>x.id==lid.value && x.pw==lpw.value);
- if(!me) return alert("실패");
- localStorage.setItem("me",JSON.stringify(me));
- load();
+  const name = prompt('이름 입력');
+  if(!name) return;
+  const avatar = prompt('프로필 이미지 URL (없으면 비워두기)') || '';
+  const badge = prompt('뱃지 이름 (예: official, creator, staff)') || 'USER';
+  user = {name, avatar, badge};
+  localStorage.setItem('circleUser', JSON.stringify(user));
+  loadUser();
 }
 
-function logout(){
- localStorage.removeItem("me");
- location.reload();
+function loadUser(){
+  if(!user){
+    document.getElementById('myName').innerText = 'Guest';
+    return;
+  }
+  document.getElementById('myName').innerText = user.name;
+  document.getElementById('myBadge').innerText = user.badge;
+  document.getElementById('myAvatar').src = user.avatar || 'https://i.imgur.com/4M34hi2.png';
 }
 
-// ---------- INIT ----------
-function load(){
- let me=JSON.parse(localStorage.getItem("me"));
- if(!me) return show("login");
+function addPost(){
+  if(!user){alert('로그인 먼저!');return;}
+  const text = postText.value.trim();
+  if(!text){alert('내용 입력');return;}
+  const img = imageLink.value;
+  const pinned = pinCheck.checked;
 
- menu.style.display="flex";
- show("dashboard");
- applyTheme();
- renderProfile();
- renderChat();
- renderPosts();
- renderAdmin();
+  const post = {
+    id: Date.now(),
+    author: user,
+    text,
+    img,
+    pinned,
+    time: new Date().toLocaleString(),
+    comments: []
+  };
+
+  posts.unshift(post);
+  save();
+  render();
+  postText.value='';
+  imageLink.value='';
+  pinCheck.checked=false;
 }
 
-function show(p){
- document.querySelectorAll(".page").forEach(x=>x.style.display="none");
- document.getElementById(p).style.display="block";
-}
+function addComment(postId){
+  const input = document.getElementById('c_'+postId);
+  const text = input.value.trim();
+  if(!text) return;
 
-// ---------- PROFILE ----------
-function renderProfile(){
- let me=JSON.parse(localStorage.getItem("me"));
- profileCard.innerHTML=`
-<div class="box">
-<b>${me.nick}</b> (${me.role})<br>
-${me.status}<br>${me.bio}
-</div>`;
- snick.value=me.nick;
- sstatus.value=me.status;
- sbio.value=me.bio;
-}
-
-function saveProfile(){
- let me=JSON.parse(localStorage.getItem("me"));
- let users=get("users");
-
- users.forEach(u=>{
- if(u.id==me.id){
- u.nick=snick.value;
- u.status=sstatus.value;
- u.bio=sbio.value;
- localStorage.setItem("me",JSON.stringify(u));
- }
- });
-
- set("users",users);
- alert("저장됨");
- renderProfile();
-}
-
-// ---------- THEME ----------
-function toggleTheme(){
- let me=JSON.parse(localStorage.getItem("me"));
- me.theme = me.theme=="dark"?"light":"dark";
- localStorage.setItem("me",JSON.stringify(me));
- applyTheme();
-}
-
-function applyTheme(){
- let me=JSON.parse(localStorage.getItem("me"));
- document.body.className=me.theme;
-}
-
-// ---------- CHAT ----------
-function sendMsg(){
- let c=get("chat");
- let me=JSON.parse(localStorage.getItem("me"));
- c.push({u:me.nick,t:msg.value});
- set("chat",c);
- msg.value="";
- renderChat();
-}
-
-function renderChat(){
- let c=get("chat");
- let me=JSON.parse(localStorage.getItem("me"));
- chatBox.innerHTML="";
-
- c.forEach(m=>{
-
- const mine = 
- (m.side==="right" && m.u===me.nick) ||
- (m.side==="left" && me.role==="artist" && m.u===me.nick);
-
- chatBox.innerHTML+=`
-
- <div style="display:flex;gap:8px;align-items:flex-end;
- ${m.side==="right"?'justify-content:flex-end':''}">
-
- ${m.side==="left"?`
- <img src="${m.img}" 
- style="width:34px;height:34px;border-radius:50%;background:#ccc">
- `:""}
-
- <div class="${m.side==="right"?'chat-me':'chat-you'}">
-
- ${m.side==="left"?`<b style="font-size:12px">${m.u}</b><br>`:""}
-
- ${m.text}
-
- <div style="font-size:10px;opacity:.6;text-align:right">
- ${new Date(m.time).toLocaleTimeString()}
- </div>
-
- </div>
-
- </div>
- `;
- });
-
- updateDash();
-}
-
-
-// ---------- COMMUNITY ----------
-function post(){
- let p=get("posts");
- let me=JSON.parse(localStorage.getItem("me"));
- p.push({t:ptitle.value,c:pcontent.value,w:me.nick});
- set("posts",p);
- renderPosts();
-}
-
-function renderPosts(){
- let p=get("posts");
- posts.innerHTML="";
- p.forEach(x=>{
- posts.innerHTML+=`
- <div class="box">
- <b>${x.t}</b><br>${x.c}<br>${x.w}
- </div>`;
- });
-}
-
-// ---------- ADMIN ----------
-function renderAdmin(){
- let me=JSON.parse(localStorage.getItem("me"));
- if(me.role!=="admin") return;
-
- let u=get("users");
- userList.innerHTML="";
- u.forEach(x=>{
- userList.innerHTML+=`
- <div class="box">
- ${x.id} (${x.role})
- <button onclick="ban('${x.id}')">삭제</button>
- </div>`;
- });
-}
-
-function ban(id){
- let u=get("users").filter(x=>x.id!==id);
- set("users",u);
- renderAdmin();
-}
-
-// ---------- DELETE ----------
-function deleteAccount(){
- let me=JSON.parse(localStorage.getItem("me"));
- let u=get("users").filter(x=>x.id!==me.id);
- set("users",u);
- logout();
-}
-
-load();
- renderChatHeader();
-
-
- function uploadProfile(e){
- const file=e.target.files[0];
- const reader=new FileReader();
-
- reader.onload=function(){
-  let me=JSON.parse(localStorage.getItem("me"));
-  let users=get("users");
-
-  users.forEach(u=>{
-   if(u.id==me.id){
-    u.img=reader.result;
-    localStorage.setItem("me",JSON.stringify(u));
-   }
+  const post = posts.find(p=>p.id===postId);
+  post.comments.push({
+    name:user.name,
+    text,
+    time:new Date().toLocaleDateString()
   });
-
-  set("users",users);
-  renderProfile();
- }
-
- reader.readAsDataURL(file);
+  save();
+  render();
 }
 
-let fanMode=false;
-
- function renderChatHeader(){
- let me=JSON.parse(localStorage.getItem("me"));
- const header=document.getElementById("chatHeader");
-
- if(me.role==="artist"){
-
- header.innerHTML=`
- <div class="box" style="display:flex;align-items:center;gap:12px">
-
- <img src="${me.img||''}" 
- style="width:40px;height:40px;border-radius:50%;background:#ccc">
-
- <b>${me.nick}</b>
-
- <button onclick="toggleFanMode()">
- ${fanMode?"아티스트로 보내기":"팬으로 보내기"}
- </button>
-
- </div>
- `;
-
- } else {
-
- header.innerHTML="";
- }
-}
-function toggleFanMode(){
- fanMode=!fanMode;
- toast(fanMode?"팬 모드 ON":"아티스트 모드 ON");
- renderChatHeader();
+function save(){
+  localStorage.setItem('circlePosts', JSON.stringify(posts));
 }
 
+function render(){
+  const list = document.getElementById('postList');
+  list.innerHTML='';
 
+  const sorted = [...posts].sort((a,b)=>b.pinned - a.pinned);
+
+  sorted.forEach(p=>{
+    const el = document.createElement('div');
+    el.className='card';
+
+    el.innerHTML = `
+      <div class="flex">
+        <img class="avatar" src="${p.author.avatar || 'https://i.imgur.com/4M34hi2.png'}" />
+        <div>
+          <div class="post-title">${p.author.name}</div>
+          <div class="post-meta">${p.author.badge} · ${p.time}</div>
+        </div>
+        ${p.pinned?'<span class="pinned">📌 PINNED</span>':''}
+      </div>
+
+      <div class="post-content">${p.text.replace(/\n/g,'<br>')}</div>
+      ${p.img?`<img src="${p.img}" style="width:100%;margin-top:10px;border-radius:10px">`:''}
+
+      <div class="comment-box">
+        <strong>댓글</strong>
+        ${p.comments.map(c=>`<div class="comment">${c.name} · ${c.time}<br>${c.text}</div>`).join('')}
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input id="c_${p.id}" type="text" placeholder="댓글 입력">
+          <button class="btn" onclick="addComment(${p.id})">등록</button>
+        </div>
+      </div>
+    `;
+
+    list.appendChild(el);
+  })
+}
+
+loadUser();
+render();
 </script>
 </body>
 </html>
