@@ -1,169 +1,205 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>CIRCLE</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-*{box-sizing:border-box;font-family:system-ui, -apple-system, BlinkMacSystemFont, sans-serif}
-body{margin:0;background:#f5f6f8}
-header{background:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e6e6e6}
+*{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{margin:0;background:#f4f6f8}
+header{background:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e6e6e6;position:sticky;top:0;z-index:10}
 .logo{font-weight:900;letter-spacing:1px}
-.btn{border:none;border-radius:20px;padding:8px 16px;cursor:pointer}
-.arrive{background:#111;color:#fff}
-.container{max-width:760px;margin:20px auto;padding:0 14px}
-.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 6px 14px rgba(0,0,0,.04)}
-.flex{display:flex;align-items:center;gap:10px}
-.avatar{width:38px;height:38px;border-radius:50%;background:#ddd;object-fit:cover}
-.badge{font-size:12px;background:#e9f1ff;color:#2563eb;padding:2px 6px;border-radius:6px}
-.pinned{background:#fff3cd;color:#9a6700;font-size:12px;padding:4px 8px;border-radius:12px;margin-left:auto}
-.post-title{font-weight:800;letter-spacing:3px}
-.post-meta{font-size:12px;color:#777;margin-top:4px}
-.post-content{margin-top:12px;line-height:1.5}
-.comment-box{margin-top:12px;padding-top:12px;border-top:1px solid #eee}
-.comment{font-size:14px;margin-top:8px}
-.reply{margin-left:22px;color:#444}
-.write-box textarea{width:100%;border-radius:10px;border:1px solid #ddd;padding:10px;resize:none}
-.write-actions{display:flex;justify-content:space-between;margin-top:8px}
-input[type="text"]{padding:6px;border-radius:8px;border:1px solid #ddd;width:100%}
-small{color:#999}
+.btn{border:none;border-radius:18px;padding:7px 14px;cursor:pointer;font-size:13px}
+.primary{background:#111;color:#fff}
+.container{max-width:720px;margin:auto;padding:12px}
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 4px 10px rgba(0,0,0,.04)}
+.flex{display:flex;gap:10px;align-items:center}
+.avatar{width:44px;height:44px;border-radius:50%;object-fit:cover}
+
+.badge{font-size:11px;padding:3px 7px;border-radius:6px;font-weight:700}
+.badge.user{background:#eee;color:#444}
+.badge.official{background:#e9f1ff;color:#2563eb}
+.badge.admin{background:#ffecec;color:#d60000}
+.check{color:#1d9bf0;font-size:13px;margin-left:4px}
+
+.title-name{font-size:20px;font-weight:900;letter-spacing:3px}
+.meta{font-size:12px;color:#777;display:flex;gap:6px;align-items:center}
+.content{margin-top:10px;font-size:15px;line-height:1.6}
+
+.action-row{display:flex;gap:10px;font-size:13px;margin-top:8px;color:#666}
+.action-row span{cursor:pointer}
+
+.pinned{background:#fff3cd;color:#9a6700;font-size:11px;padding:4px 8px;border-radius:10px;margin-left:auto}
+
+.comment-box{margin-top:12px;border-top:1px solid #eee;padding-top:10px}
+.comment{font-size:13px;margin-top:6px}
+.reply{margin-left:18px;color:#444}
+
+input,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
+
+@media(max-width:600px){
+ .title-name{font-size:17px}
+ .avatar{width:38px;height:38px}
+}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">CIRCLE</div>
-  <button class="btn arrive" onclick="login()">ARRIVE</button>
+ <div class="logo">CIRCLE</div>
+ <div>
+  <button class="btn" onclick="openProfile()">프로필</button>
+  <button class="btn primary" onclick="login()">ARRIVE</button>
+ </div>
 </header>
 
 <div class="container">
 
-<!-- 글쓰기 -->
-<div class="card write-box">
-  <div class="flex">
-    <img id="myAvatar" class="avatar" />
-    <strong id="myName">Guest</strong>
-    <span id="myBadge" class="badge">USER</span>
-  </div>
-  <textarea id="postText" rows="3" placeholder="무슨 이야기를 나누고 싶어?"></textarea>
-  <input id="imageLink" type="text" placeholder="이미지 링크 (선택)" />
-  <div class="write-actions">
-    <label><input type="checkbox" id="pinCheck" /> 고정</label>
-    <button class="btn arrive" onclick="addPost()">게시</button>
-  </div>
+<div id="profileBox" class="card" style="display:none">
+ <h3>프로필 설정</h3>
+ <input id="pName" placeholder="이름">
+ <input id="pBadge" placeholder="user / official / admin">
+ <input id="pAvatar" type="file" accept="image/*">
+ <button class="btn primary" onclick="saveProfile()">저장</button>
 </div>
 
-<!-- 게시글 영역 -->
-<div id="postList"></div>
+<div class="card">
+ <div class="flex">
+  <img id="myAvatar" class="avatar">
+  <strong id="myName">Guest</strong>
+  <span id="myBadge" class="badge user">USER</span>
+ </div>
+ <textarea id="postText" rows="3" placeholder="무슨 이야기를 나누고 싶어?"></textarea>
+ <input id="postImage" type="file" accept="image/*">
+ <div style="display:flex;justify-content:space-between;margin-top:6px">
+  <label><input type="checkbox" id="pinCheck"> 공지(관리자)</label>
+  <button class="btn primary" onclick="addPost()">게시</button>
+ </div>
+</div>
 
+<div style="display:flex;gap:8px;margin-bottom:10px">
+ <select onchange="filterPosts(this.value)">
+  <option value="all">전체</option>
+  <option value="notice">공지</option>
+  <option value="official">공식</option>
+ </select>
+</div>
+
+<div id="postList"></div>
 </div>
 
 <script>
-let user = JSON.parse(localStorage.getItem('circleUser')) || null;
-let posts = JSON.parse(localStorage.getItem('circlePosts')) || [];
+let user = JSON.parse(localStorage.getItem('circleUser'))||null;
+let posts = JSON.parse(localStorage.getItem('circlePosts'))||[];
+let filter='all';
 
 function login(){
-  const name = prompt('이름 입력');
-  if(!name) return;
-  const avatar = prompt('프로필 이미지 URL (없으면 비워두기)') || '';
-  const badge = prompt('뱃지 이름 (예: official, creator, staff)') || 'USER';
-  user = {name, avatar, badge};
-  localStorage.setItem('circleUser', JSON.stringify(user));
+ const name=prompt('이름');
+ if(!name)return;
+ user={name,badge:'user',avatar:''};
+ localStorage.setItem('circleUser',JSON.stringify(user));
+ loadUser();
+}
+
+function openProfile(){
+ profileBox.style.display=profileBox.style.display==='none'?'block':'none';
+}
+
+function saveProfile(){
+ if(!user)return;
+ const file=pAvatar.files[0];
+ const name=pName.value||user.name;
+ const badge=pBadge.value||user.badge;
+ if(file){
+  const r=new FileReader();
+  r.onload=()=>{
+   user={name,badge,avatar:r.result};
+   localStorage.setItem('circleUser',JSON.stringify(user));
+   loadUser();
+  }
+  r.readAsDataURL(file);
+ }else{
+  user={name,badge,avatar:user.avatar};
+  localStorage.setItem('circleUser',JSON.stringify(user));
   loadUser();
+ }
 }
 
 function loadUser(){
-  if(!user){
-    document.getElementById('myName').innerText = 'Guest';
-    return;
-  }
-  document.getElementById('myName').innerText = user.name;
-  document.getElementById('myBadge').innerText = user.badge;
-  document.getElementById('myAvatar').src = user.avatar || 'https://i.imgur.com/4M34hi2.png';
+ if(!user)return;
+ myName.innerText=user.name;
+ myAvatar.src=user.avatar||'https://i.imgur.com/4M34hi2.png';
+ myBadge.innerText=user.badge.toUpperCase();
+ myBadge.className='badge '+user.badge;
 }
 
 function addPost(){
-  if(!user){alert('로그인 먼저!');return;}
-  const text = postText.value.trim();
-  if(!text){alert('내용 입력');return;}
-  const img = imageLink.value;
-  const pinned = pinCheck.checked;
-
-  const post = {
-    id: Date.now(),
-    author: user,
-    text,
-    img,
-    pinned,
-    time: new Date().toLocaleString(),
-    comments: []
-  };
-
-  posts.unshift(post);
-  save();
-  render();
-  postText.value='';
-  imageLink.value='';
-  pinCheck.checked=false;
+ if(!user){alert('로그인');return;}
+ const text=postText.value.trim();
+ if(!text)return;
+ const pin=pinCheck.checked && user.badge==='admin';
+ const file=postImage.files[0];
+ if(file){
+  const r=new FileReader();
+  r.onload=()=>savePost(text,r.result,pin);
+  r.readAsDataURL(file);
+ }else savePost(text,'',pin);
 }
 
-function addComment(postId){
-  const input = document.getElementById('c_'+postId);
-  const text = input.value.trim();
-  if(!text) return;
-
-  const post = posts.find(p=>p.id===postId);
-  post.comments.push({
-    name:user.name,
-    text,
-    time:new Date().toLocaleDateString()
-  });
-  save();
-  render();
+function savePost(text,img,pin){
+ posts.unshift({id:Date.now(),author:user,text,img,pinned:pin,time:new Date().toLocaleString(),likes:0,views:0,comments:[],reports:0});
+ sync();render();
+ postText.value='';postImage.value='';pinCheck.checked=false;
 }
 
-function save(){
-  localStorage.setItem('circlePosts', JSON.stringify(posts));
-}
+function filterPosts(v){filter=v;render();}
+
+function likePost(id){const p=posts.find(x=>x.id===id);p.likes++;sync();render();}
+function viewPost(id){const p=posts.find(x=>x.id===id);p.views++;sync();}
+function reportPost(id){if(confirm('신고?')){const p=posts.find(x=>x.id===id);p.reports++;sync();alert('접수 완료');}}
+
+function addComment(id){const t=prompt('댓글');if(!t)return;const p=posts.find(x=>x.id===id);p.comments.push({text:t,reply:[]});sync();render();}
+function replyComment(pid,i){const t=prompt('답글');if(!t)return;const p=posts.find(x=>x.id===pid);p.comments[i].reply.push(t);sync();render();}
+
+function sync(){localStorage.setItem('circlePosts',JSON.stringify(posts));}
 
 function render(){
-  const list = document.getElementById('postList');
-  list.innerHTML='';
+ postList.innerHTML='';
+ let list=[...posts].sort((a,b)=>b.pinned-a.pinned);
+ if(filter==='notice')list=list.filter(p=>p.pinned);
+ if(filter==='official')list=list.filter(p=>p.author.badge==='official');
 
-  const sorted = [...posts].sort((a,b)=>b.pinned - a.pinned);
+ list.forEach(p=>{
+  const el=document.createElement('div');
+  el.className='card';
+  viewPost(p.id);
 
-  sorted.forEach(p=>{
-    const el = document.createElement('div');
-    el.className='card';
+  el.innerHTML=`
+  <div class="flex">
+   <img class="avatar" src="${p.author.avatar||'https://i.imgur.com/4M34hi2.png'}">
+   <div>
+    <div class="title-name">${p.author.name}${p.author.badge==='official'?'<span class=check>✔</span>':''}</div>
+    <div class="meta"><span class="badge ${p.author.badge}">${p.author.badge}</span>${p.time}</div>
+   </div>
+   ${p.pinned?'<span class=pinned>공지</span>':''}
+  </div>
+  <div class="content">${p.text}</div>
+  ${p.img?`<img src="${p.img}" style="width:100%;border-radius:12px;margin-top:8px">`:''}
+  <div class="action-row">
+   <span onclick="likePost(${p.id})">❤️ ${p.likes}</span>
+   <span>👁 ${p.views}</span>
+   <span onclick="addComment(${p.id})">💬 ${p.comments.length}</span>
+   <span onclick="reportPost(${p.id})">🚨</span>
+  </div>
+  <div class="comment-box">
+   ${p.comments.map((c,i)=>`<div class=comment>${c.text}<span onclick=replyComment(${p.id},${i}) style=color:blue;cursor:pointer> 답글</span>${c.reply.map(r=>`<div class='comment reply'>${r}</div>`).join('')}</div>`).join('')}
+  </div>`;
 
-    el.innerHTML = `
-      <div class="flex">
-        <img class="avatar" src="${p.author.avatar || 'https://i.imgur.com/4M34hi2.png'}" />
-        <div>
-          <div class="post-title">${p.author.name}</div>
-          <div class="post-meta">${p.author.badge} · ${p.time}</div>
-        </div>
-        ${p.pinned?'<span class="pinned">📌 PINNED</span>':''}
-      </div>
-
-      <div class="post-content">${p.text.replace(/\n/g,'<br>')}</div>
-      ${p.img?`<img src="${p.img}" style="width:100%;margin-top:10px;border-radius:10px">`:''}
-
-      <div class="comment-box">
-        <strong>댓글</strong>
-        ${p.comments.map(c=>`<div class="comment">${c.name} · ${c.time}<br>${c.text}</div>`).join('')}
-        <div style="display:flex;gap:6px;margin-top:8px">
-          <input id="c_${p.id}" type="text" placeholder="댓글 입력">
-          <button class="btn" onclick="addComment(${p.id})">등록</button>
-        </div>
-      </div>
-    `;
-
-    list.appendChild(el);
-  })
+  postList.appendChild(el);
+ });
 }
 
-loadUser();
-render();
+loadUser();render();
 </script>
 </body>
 </html>
+
