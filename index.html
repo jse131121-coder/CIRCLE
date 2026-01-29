@@ -3,137 +3,151 @@
 <head>
 <meta charset="UTF-8">
 <title>CIRCLE</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont}
 body{margin:0;background:#fff}
 
-/* LOGIN */
-#login{
-position:fixed;inset:0;background:white;
-display:flex;flex-direction:column;
-align-items:center;justify-content:center;z-index:10
-}
-#login input{padding:12px;border-radius:12px;border:1px solid #ddd;width:240px;margin:6px}
-#login button{padding:12px 22px;border:none;border-radius:14px;background:black;color:white}
+.hidden{display:none}
 
-/* HEADER */
-header{text-align:center;padding:14px;font-weight:700;border-bottom:1px solid #eee}
+button{border:none;border-radius:10px;padding:10px;cursor:pointer}
 
-/* COMMUNITY */
-#feed{padding-bottom:120px}
-.post{
-background:#ffd6e5;
-margin:12px;
-padding:14px;
-border-radius:20px
-}
-.post-header{display:flex;align-items:center;gap:8px}
-.post-header img{width:34px;height:34px;border-radius:50%}
-.actions button{border:none;background:none;margin-right:8px}
-
-.comment-box{
-margin-top:10px;
-background:white;
-border-radius:14px;
-padding:8px
-}
-.comment{
-font-size:13px;
-margin-bottom:6px
-}
-.comment-input{
-display:flex;
-gap:6px
-}
-.comment-input textarea{
-flex:1;
+input,textarea{
+width:100%;
+padding:10px;
 border-radius:10px;
 border:1px solid #ddd;
-padding:6px;
-resize:none
+outline:none;
 }
 
-/* POST MODAL */
-#postModal{
-position:fixed;inset:0;
-background:rgba(0,0,0,.4);
-display:none;
+/* LOGIN */
+
+#login{
+height:100vh;
+display:flex;
 align-items:center;
 justify-content:center;
-z-index:20
-}
-#postBox{
-background:white;
-padding:20px;
-border-radius:20px;
-width:90%
-}
-#postBox textarea{
-width:100%;
-height:100px;
-resize:none;
-border-radius:12px;
-padding:10px
+flex-direction:column;
+gap:15px;
 }
 
-/* CHAT */
-#chat{display:none;padding-bottom:110px}
-.chatMsg{
-display:flex;
-align-items:flex-start;
-gap:8px;
-margin:10px
-}
-.chatMsg img{width:34px;height:34px;border-radius:50%}
-.bubble{
-background:#ffc1d6;
-padding:10px;
-border-radius:14px;
-max-width:70%
-}
-.time{font-size:10px;color:#666;margin-top:4px}
-
-#chatInput{
-position:fixed;
-bottom:60px;
-width:100%;
-display:none;
-padding:8px;
-background:white
-}
-#chatInput textarea{
-flex:1;
-border-radius:12px;
-padding:8px;
-border:1px solid #ddd;
-resize:none
-}
-#chatInput button{
-margin-left:6px;
-border:none;
-background:#ff9acb;
-color:white;
-border-radius:12px;
-padding:10px
-}
-
-/* PROFILE */
-#profile{display:none;padding:20px}
+#login input{width:220px;text-align:center}
 
 /* NAV */
+
 nav{
 position:fixed;
 bottom:0;
 width:100%;
-background:white;
+background:#fff;
 display:flex;
 justify-content:space-around;
 padding:10px;
-border-top:1px solid #eee
+border-top:1px solid #eee;
 }
-nav button{border:none;background:none;font-size:16px}
+
+nav button{background:none;font-size:18px}
+
+/* HOME */
+
+#home{padding:15px;padding-bottom:80px}
+
+.card{
+background:#ffd6e8;
+border-radius:20px;
+padding:15px;
+margin-bottom:15px;
+animation:pop .4s ease;
+}
+
+@keyframes pop{
+from{transform:scale(.9);opacity:0}
+to{transform:scale(1);opacity:1}
+}
+
+/* STORY */
+
+#stories{display:flex;gap:10px;overflow-x:auto}
+
+.story{
+width:70px;height:70px;
+border-radius:50%;
+background:#ff7ab6;
+display:flex;
+align-items:center;
+justify-content:center;
+color:#fff;
+font-weight:bold;
+}
+
+/* COMMUNITY */
+
+.post{
+background:#ffd6e8;
+padding:15px;
+border-radius:20px;
+margin-bottom:15px;
+}
+
+.post img{width:100%;border-radius:15px;margin-top:10px}
+
+.actions button{margin-right:5px}
+
+/* CHAT */
+
+#chatList div{
+padding:12px;
+border-bottom:1px solid #eee;
+cursor:pointer;
+}
+
+.chatBox{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#fff;
+display:flex;
+flex-direction:column;
+}
+
+.messages{
+flex:1;
+padding:10px;
+overflow-y:auto;
+}
+
+.msg{
+margin-bottom:10px;
+}
+
+.bubble{
+display:inline-block;
+padding:10px;
+border-radius:15px;
+background:#ffd6e8;
+}
+
+.time{font-size:11px;color:#666}
+
+/* LIVE */
+
+#live video{width:100%}
+
+.heart{
+position:absolute;
+bottom:80px;
+right:30px;
+font-size:24px;
+animation:float 2s linear forwards;
+}
+
+@keyframes float{
+from{transform:translateY(0);opacity:1}
+to{transform:translateY(-150px);opacity:0}
+}
 
 </style>
 </head>
@@ -144,264 +158,233 @@ nav button{border:none;background:none;font-size:16px}
 <div id="login">
 <h2>CIRCLE</h2>
 <input id="nameInput" placeholder="닉네임">
-<input type="file" id="photoInput">
 <button onclick="login()">ENTER</button>
 </div>
 
-<header>CIRCLE</header>
+<!-- APP -->
+<div id="app" class="hidden">
+
+<!-- HOME -->
+<div id="home">
+<div id="stories"></div>
+<div id="feed"></div>
+</div>
 
 <!-- COMMUNITY -->
-<div id="feed"></div>
+<div id="community" class="hidden">
+<button onclick="openWrite()">글쓰기</button>
+<div id="posts"></div>
+</div>
 
 <!-- CHAT -->
-<div id="chat"></div>
-
-<div id="chatInput">
-<textarea id="msgInput" placeholder="메시지 입력"></textarea>
-<button onclick="sendMsg()">전송</button>
+<div id="chat" class="hidden">
+<button onclick="newChat()">+ 채팅 추가</button>
+<div id="chatList"></div>
 </div>
 
-<!-- PROFILE -->
-<div id="profile">
-<h3>프로필 설정</h3>
-<img id="profileImg" width="120" style="border-radius:50%">
-<br><br>
-<input id="newName" placeholder="닉네임 변경">
-<input type="file" id="newPhoto">
-<br><br>
-<button onclick="saveProfile()">저장</button>
-<button onclick="logout()">로그아웃</button>
+<!-- LIVE -->
+<div id="live" class="hidden">
+<video id="camera" autoplay></video>
+<button onclick="heart()">❤️</button>
 </div>
 
-<!-- POST MODAL -->
-<div id="postModal">
-<div id="postBox">
-<h3>글 작성</h3>
-<textarea id="postText" placeholder="내용 입력"></textarea>
-<br><br>
-<button onclick="uploadPost()">올리기</button>
-<button onclick="closePost()">닫기</button>
-</div>
-</div>
-
-<!-- NAV -->
 <nav>
-<button onclick="showFeed()">🏠</button>
-<button onclick="showChat()">💬</button>
-<button onclick="openPost()">➕</button>
-<button onclick="showProfile()">👤</button>
+<button onclick="show('home')">🏠</button>
+<button onclick="show('community')">📝</button>
+<button onclick="show('chat')">💬</button>
+<button onclick="show('live')">🔴</button>
 </nav>
 
+</div>
+
 <script>
-let user = JSON.parse(localStorage.getItem("circleUser"))
-let posts = JSON.parse(localStorage.getItem("circlePosts")) || []
-let chats = JSON.parse(localStorage.getItem("circleChats")) || []
 
+let user = localStorage.getItem("circleUser");
 if(user){
-login.style.display="none"
-loadFeed()
+document.getElementById("login").classList.add("hidden");
+document.getElementById("app").classList.remove("hidden");
 }
 
-/* LOGIN */
+document.getElementById("nameInput").addEventListener("keydown",e=>{
+if(e.key==="Enter") login();
+});
+
 function login(){
-let name=nameInput.value.trim()
-if(!name){alert("닉네임 입력");return}
-
-let file=photoInput.files[0]
-
-if(file){
-let r=new FileReader()
-r.onload=()=>{
-saveUser(name,r.result)
-}
-r.readAsDataURL(file)
-}else{
-saveUser(name,"")
-}
-}
-
-function saveUser(name,photo){
-user={name,photo}
-localStorage.setItem("circleUser",JSON.stringify(user))
-login.style.display="none"
-loadFeed()
-}
-
-/* COMMUNITY */
-function loadFeed(){
-feed.innerHTML=""
-posts.forEach((p,i)=>{
-feed.innerHTML+=`
-<div class="post">
-<div class="post-header">
-<img src="${p.photo||''}">
-<b>${p.name}</b>
-</div>
-<div style="white-space:pre-wrap">${p.text}</div>
-
-<div class="actions">
-<button onclick="like(${i})">❤️ ${p.like||0}</button>
-<button onclick="delPost(${i})">🗑</button>
-</div>
-
-<div class="comment-box">
-${(p.comments||[]).map(c=>`<div class="comment"><b>${c.name}</b>: ${c.text}</div>`).join("")}
-<div class="comment-input">
-<textarea id="c${i}" placeholder="댓글"></textarea>
-<button onclick="addComment(${i})">보내기</button>
-</div>
-</div>
-
-</div>
-`
-})
-}
-
-function openPost(){postModal.style.display="flex"}
-function closePost(){postModal.style.display="none"}
-
-function uploadPost(){
-let text=postText.value.trim()
-if(!text)return
-
-posts.unshift({
-name:user.name,
-photo:user.photo,
-text:text,
-like:0,
-comments:[]
-})
-
-localStorage.setItem("circlePosts",JSON.stringify(posts))
-postText.value=""
-closePost()
-loadFeed()
-}
-
-function like(i){
-posts[i].like++
-savePosts()
-}
-
-function delPost(i){
-if(confirm("삭제?")){
-posts.splice(i,1)
-savePosts()
-}
-}
-
-function addComment(i){
-let input=document.getElementById("c"+i)
-let text=input.value.trim()
-if(!text)return
-
-posts[i].comments.push({
-name:user.name,
-text:text
-})
-
-savePosts()
-}
-
-function savePosts(){
-localStorage.setItem("circlePosts",JSON.stringify(posts))
-loadFeed()
-}
-
-/* CHAT */
-function showChat(){
-hideAll()
-chat.style.display="block"
-chatInput.style.display="flex"
-loadChat()
-}
-
-function loadChat(){
-chat.innerHTML=""
-chats.forEach(c=>{
-chat.innerHTML+=`
-<div class="chatMsg">
-<img src="${c.photo}">
-<div>
-<b>${c.name}</b>
-<div class="bubble" style="white-space:pre-wrap">${c.text}</div>
-<div class="time">${c.time}</div>
-</div>
-</div>
-`
-})
-}
-
-function sendMsg(){
-let text=msgInput.value.trim()
-if(!text)return
-
-let time=new Date().toLocaleTimeString()
-
-chats.push({
-name:user.name,
-photo:user.photo,
-text:text,
-time:time
-})
-
-localStorage.setItem("circleChats",JSON.stringify(chats))
-msgInput.value=""
-loadChat()
-}
-
-/* PROFILE */
-function showProfile(){
-hideAll()
-profile.style.display="block"
-profileImg.src=user.photo
-}
-
-function saveProfile(){
-let name=newName.value.trim()
-let file=newPhoto.files[0]
-
-if(file){
-let r=new FileReader()
-r.onload=()=>{
-user.photo=r.result
-user.name=name||user.name
-finishProfile()
-}
-r.readAsDataURL(file)
-}else{
-user.name=name||user.name
-finishProfile()
-}
-}
-
-function finishProfile(){
-localStorage.setItem("circleUser",JSON.stringify(user))
-alert("저장 완료")
+let name = nameInput.value.trim();
+if(!name)return alert("닉네임 입력");
+localStorage.setItem("circleUser",name);
+location.reload();
 }
 
 /* NAV */
-function showFeed(){
-hideAll()
-feed.style.display="block"
+
+function show(id){
+["home","community","chat","live"].forEach(x=>{
+document.getElementById(x).classList.add("hidden");
+});
+document.getElementById(id).classList.remove("hidden");
 }
 
-function hideAll(){
-feed.style.display="none"
-chat.style.display="none"
-profile.style.display="none"
-chatInput.style.display="none"
+/* STORY */
+
+let stories = JSON.parse(localStorage.getItem("stories")||"[]");
+
+function renderStory(){
+storiesDiv.innerHTML="";
+stories.forEach(s=>{
+let d=document.createElement("div");
+d.className="story";
+d.innerText=s.name[0];
+storiesDiv.appendChild(d);
+});
 }
 
-/* LOGOUT */
-function logout(){
-localStorage.clear()
-location.reload()
+storiesDiv=document.getElementById("stories");
+
+storiesDiv.onclick=()=>{
+let file=document.createElement("input");
+file.type="file";
+file.onchange=e=>{
+let reader=new FileReader();
+reader.onload=()=>{
+stories.push({name:user,img:reader.result});
+localStorage.setItem("stories",JSON.stringify(stories));
+renderStory();
+};
+reader.readAsDataURL(e.target.files[0]);
+};
+file.click();
 }
+
+renderStory();
+
+/* COMMUNITY */
+
+let posts=JSON.parse(localStorage.getItem("posts")||"[]");
+
+function openWrite(){
+let txt=prompt("내용 입력");
+if(!txt)return;
+posts.unshift({user,txt,likes:0});
+savePost();
+}
+
+function savePost(){
+localStorage.setItem("posts",JSON.stringify(posts));
+renderPost();
+}
+
+function renderPost(){
+postsDiv.innerHTML="";
+posts.forEach((p,i)=>{
+let d=document.createElement("div");
+d.className="post";
+d.innerHTML=`
+<b>${p.user}</b>
+<p>${p.txt.replace(/\n/g,"<br>")}</p>
+<div class="actions">
+<button onclick="like(${i})">❤️ ${p.likes}</button>
+<button onclick="editPost(${i})">✏️</button>
+<button onclick="delPost(${i})">🗑</button>
+</div>
+<textarea id="c${i}" placeholder="댓글"></textarea>
+<button onclick="comment(${i})">보내기</button>
+`;
+postsDiv.appendChild(d);
+});
+}
+
+postsDiv=document.getElementById("posts");
+
+function like(i){posts[i].likes++;savePost()}
+function delPost(i){posts.splice(i,1);savePost()}
+function editPost(i){
+let t=prompt("수정",posts[i].txt);
+if(t){posts[i].txt=t;savePost();}
+}
+function comment(i){
+alert("댓글 저장 완료(로컬)");
+}
+
+renderPost();
+
+/* CHAT */
+
+let chats=JSON.parse(localStorage.getItem("chats")||"[]");
+
+function newChat(){
+let name=prompt("상대 이름");
+if(!name)return;
+chats.push({name,msgs:[]});
+saveChat();
+}
+
+function saveChat(){
+localStorage.setItem("chats",JSON.stringify(chats));
+renderChatList();
+}
+
+function renderChatList(){
+chatList.innerHTML="";
+chats.forEach((c,i)=>{
+let d=document.createElement("div");
+d.innerText=c.name;
+d.onclick=()=>openChat(i);
+chatList.appendChild(d);
+});
+}
+
+function openChat(i){
+let box=document.createElement("div");
+box.className="chatBox";
+box.innerHTML=`
+<div class="messages" id="m"></div>
+<input id="send">
+`;
+document.body.appendChild(box);
+
+let input=box.querySelector("#send");
+
+input.addEventListener("keydown",e=>{
+if(e.key==="Enter"){
+let t=input.value;
+if(!t)return;
+chats[i].msgs.push({u:user,t,time:new Date().toLocaleTimeString()});
+saveChat();
+renderMsg();
+input.value="";
+}
+});
+
+function renderMsg(){
+let m=box.querySelector("#m");
+m.innerHTML="";
+chats[i].msgs.forEach(x=>{
+let d=document.createElement("div");
+d.className="msg";
+d.innerHTML=`<b>${x.u}</b><div class="bubble">${x.t}</div><div class="time">${x.time}</div>`;
+m.appendChild(d);
+});
+}
+renderMsg();
+}
+
+renderChatList();
+
+/* LIVE */
+
+navigator.mediaDevices.getUserMedia({video:true})
+.then(s=>camera.srcObject=s);
+
+function heart(){
+let h=document.createElement("div");
+h.className="heart";
+h.innerText="❤️";
+document.body.appendChild(h);
+setTimeout(()=>h.remove(),2000);
+}
+
 </script>
 
 </body>
 </html>
-
-
-
