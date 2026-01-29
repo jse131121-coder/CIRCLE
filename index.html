@@ -3,203 +3,310 @@
 <head>
 <meta charset="UTF-8">
 <title>CIRCLE</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <style>
-*{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
-body{margin:0;background:#f4f6f8}
-header{background:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e6e6e6;position:sticky;top:0;z-index:10}
-.logo{font-weight:900;letter-spacing:1px}
-.btn{border:none;border-radius:18px;padding:7px 14px;cursor:pointer;font-size:13px}
-.primary{background:#111;color:#fff}
-.container{max-width:720px;margin:auto;padding:12px}
-.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 4px 10px rgba(0,0,0,.04)}
-.flex{display:flex;gap:10px;align-items:center}
-.avatar{width:44px;height:44px;border-radius:50%;object-fit:cover}
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{margin:0;background:#fff;overflow-x:hidden}
 
-.badge{font-size:11px;padding:3px 7px;border-radius:6px;font-weight:700}
-.badge.user{background:#eee;color:#444}
-.badge.official{background:#e9f1ff;color:#2563eb}
-.badge.admin{background:#ffecec;color:#d60000}
-.check{color:#1d9bf0;font-size:13px;margin-left:4px}
-
-.title-name{font-size:20px;font-weight:900;letter-spacing:3px}
-.meta{font-size:12px;color:#777;display:flex;gap:6px;align-items:center}
-.content{margin-top:10px;font-size:15px;line-height:1.6}
-
-.action-row{display:flex;gap:10px;font-size:13px;margin-top:8px;color:#666}
-.action-row span{cursor:pointer}
-
-.pinned{background:#fff3cd;color:#9a6700;font-size:11px;padding:4px 8px;border-radius:10px;margin-left:auto}
-
-.comment-box{margin-top:12px;border-top:1px solid #eee;padding-top:10px}
-.comment{font-size:13px;margin-top:6px}
-.reply{margin-left:18px;color:#444}
-
-input,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
-
-@media(max-width:600px){
- .title-name{font-size:17px}
- .avatar{width:38px;height:38px}
+/* Splash */
+#splash{
+position:fixed;inset:0;background:white;display:flex;
+align-items:center;justify-content:center;font-size:32px;font-weight:700;
+animation:fadeout 1.5s forwards;z-index:20
 }
+@keyframes fadeout{
+0%{opacity:1}
+80%{opacity:1}
+100%{opacity:0;visibility:hidden}
+}
+
+/* LOGIN */
+#login{
+position:fixed;inset:0;background:white;display:flex;
+flex-direction:column;align-items:center;justify-content:center;z-index:10
+}
+#login input{padding:12px;border-radius:14px;border:1px solid #ddd;width:240px;margin-top:10px}
+#login button{margin-top:12px;padding:12px 22px;border-radius:16px;border:none;background:black;color:white}
+
+/* HEADER */
+header{text-align:center;padding:14px;font-weight:700;border-bottom:1px solid #eee}
+
+/* STORY */
+#storyBar{
+display:flex;gap:10px;padding:10px;overflow-x:auto
+}
+.story{
+width:60px;height:60px;border-radius:50%;
+background:linear-gradient(45deg,#ff9acb,#ffd1e6);
+display:flex;align-items:center;justify-content:center;color:white;font-weight:700
+}
+
+/* FEED */
+#feed{padding-bottom:110px}
+.post{
+background:#ffd6e5;margin:12px;border-radius:22px;padding:14px;
+animation:slide .3s ease
+}
+@keyframes slide{
+from{transform:translateY(10px);opacity:.5}
+to{transform:translateY(0);opacity:1}
+}
+.post img{width:100%;border-radius:16px;margin-top:8px}
+.actions button{border:none;background:none;font-size:14px;margin-right:6px}
+
+/* CHAT */
+#chat{display:none;padding-bottom:100px}
+.msgBox{display:flex;flex-direction:column}
+.msg{
+max-width:70%;padding:10px;border-radius:16px;margin:6px;font-size:14px
+}
+.me{background:#ffc1d6}
+.other{background:#f2f2f2;align-self:flex-end}
+.time{font-size:10px;color:#666;margin-top:4px}
+
+/* CHAT INPUT */
+#chatInput{
+position:fixed;bottom:60px;width:100%;display:flex;padding:6px;background:white
+}
+#chatInput input{flex:1;padding:10px;border-radius:14px;border:1px solid #ddd}
+#chatInput button{border:none;background:#ff9acb;color:white;border-radius:14px;padding:10px;margin-left:5px}
+
+/* LIVE */
+#live{display:none;position:relative}
+#live video{width:100%;height:100vh;object-fit:cover}
+#heartBtn{
+position:absolute;right:15px;bottom:100px;font-size:28px;border:none;background:none
+}
+.heart{
+position:absolute;bottom:120px;right:20px;font-size:24px;
+animation:float 2s forwards
+}
+@keyframes float{
+from{transform:translateY(0);opacity:1}
+to{transform:translateY(-200px);opacity:0}
+}
+
+/* PROFILE */
+#profile{display:none;padding:20px}
+
+/* NAV */
+nav{
+position:fixed;bottom:0;width:100%;background:white;
+display:flex;justify-content:space-around;padding:10px;border-top:1px solid #eee
+}
+nav button{background:none;border:none;font-size:16px}
 </style>
 </head>
+
 <body>
-<header>
- <div class="logo">CIRCLE</div>
- <div>
-  <button class="btn" onclick="openProfile()">프로필</button>
-  <button class="btn primary" onclick="login()">ARRIVE</button>
- </div>
-</header>
 
-<div class="container">
+<div id="splash">CIRCLE</div>
 
-<div id="profileBox" class="card" style="display:none">
- <h3>프로필 설정</h3>
- <input id="pName" placeholder="이름">
- <input id="pBadge" placeholder="user / official / admin">
- <input id="pAvatar" type="file" accept="image/*">
- <button class="btn primary" onclick="saveProfile()">저장</button>
+<!-- LOGIN -->
+<div id="login">
+<h2>CIRCLE</h2>
+<input id="nameInput" placeholder="닉네임">
+<input type="file" id="photoInput">
+<button onclick="login()">ENTER</button>
 </div>
 
-<div class="card">
- <div class="flex">
-  <img id="myAvatar" class="avatar">
-  <strong id="myName">Guest</strong>
-  <span id="myBadge" class="badge user">USER</span>
- </div>
- <textarea id="postText" rows="3" placeholder="무슨 이야기를 나누고 싶어?"></textarea>
- <input id="postImage" type="file" accept="image/*">
- <div style="display:flex;justify-content:space-between;margin-top:6px">
-  <label><input type="checkbox" id="pinCheck"> 공지(관리자)</label>
-  <button class="btn primary" onclick="addPost()">게시</button>
- </div>
+<header>CIRCLE</header>
+
+<div id="storyBar">
+<div class="story">+</div>
 </div>
 
-<div style="display:flex;gap:8px;margin-bottom:10px">
- <select onchange="filterPosts(this.value)">
-  <option value="all">전체</option>
-  <option value="notice">공지</option>
-  <option value="official">공식</option>
- </select>
+<!-- FEED -->
+<div id="feed"></div>
+
+<!-- CHAT -->
+<div id="chat">
+<div class="msgBox" id="chatBox"></div>
 </div>
 
-<div id="postList"></div>
+<div id="chatInput" style="display:none">
+<input id="msgInput" placeholder="메시지 입력">
+<button onclick="sendMsg()">전송</button>
 </div>
+
+<!-- LIVE -->
+<div id="live">
+<video id="cam" autoplay playsinline></video>
+<button id="heartBtn" onclick="spawnHeart()">❤️</button>
+</div>
+
+<!-- PROFILE -->
+<div id="profile">
+<h3>Profile</h3>
+<img id="profileImg" width="120" style="border-radius:50%">
+<br><br>
+<input id="newName" placeholder="닉네임 변경">
+<input type="file" id="newPhoto">
+<br><br>
+<button onclick="saveProfile()">저장</button>
+<button onclick="logout()">로그아웃</button>
+</div>
+
+<!-- NAV -->
+<nav>
+<button onclick="showFeed()">🏠</button>
+<button onclick="showChat()">💬</button>
+<button onclick="createPost()">➕</button>
+<button onclick="showLive()">🔴</button>
+<button onclick="showProfile()">👤</button>
+</nav>
 
 <script>
-let user = JSON.parse(localStorage.getItem('circleUser'))||null;
-let posts = JSON.parse(localStorage.getItem('circlePosts'))||[];
-let filter='all';
+let user=JSON.parse(localStorage.getItem("circleUser"))
+let posts=JSON.parse(localStorage.getItem("circlePosts"))||[]
+let chats=JSON.parse(localStorage.getItem("circleChats"))||[]
+
+if(user){login.style.display="none";loadFeed()}
 
 function login(){
- const name=prompt('이름');
- if(!name)return;
- user={name,badge:'user',avatar:''};
- localStorage.setItem('circleUser',JSON.stringify(user));
- loadUser();
+let name=nameInput.value
+let file=photoInput.files[0]
+let r=new FileReader()
+r.onload=()=>{
+user={name,photo:r.result}
+localStorage.setItem("circleUser",JSON.stringify(user))
+login.style.display="none"
+loadFeed()
+}
+file?r.readAsDataURL(file):(user={name,photo:""},localStorage.setItem("circleUser",JSON.stringify(user)),login.style.display="none",loadFeed())
 }
 
-function openProfile(){
- profileBox.style.display=profileBox.style.display==='none'?'block':'none';
+/* FEED */
+function loadFeed(){
+feed.innerHTML=""
+posts.forEach((p,i)=>{
+feed.innerHTML+=`
+<div class="post">
+<b>${p.name}</b><br>${p.text}
+${p.img?`<img src="${p.img}">`:""}
+<div class="actions">
+<button onclick="like(${i})">❤️ ${p.like||0}</button>
+<button onclick="editPost(${i})">✏️</button>
+<button onclick="delPost(${i})">🗑</button>
+</div>
+</div>`
+})
+}
+
+function createPost(){
+let text=prompt("내용 입력")
+if(!text)return
+posts.unshift({name:user.name,text,like:0})
+savePost()
+}
+
+function editPost(i){
+let t=prompt("수정",posts[i].text)
+if(t){posts[i].text=t;savePost()}
+}
+
+function delPost(i){
+if(confirm("삭제?")){posts.splice(i,1);savePost()}
+}
+
+function like(i){
+posts[i].like++
+savePost()
+}
+
+function savePost(){
+localStorage.setItem("circlePosts",JSON.stringify(posts))
+loadFeed()
+}
+
+/* CHAT */
+function showChat(){
+hideAll()
+chat.style.display="block"
+chatInput.style.display="flex"
+loadChat()
+}
+
+function loadChat(){
+chatBox.innerHTML=""
+chats.forEach(c=>{
+chatBox.innerHTML+=`
+<div class="msg ${c.me?'me':'other'}">
+${c.text}
+<div class="time">${c.time}</div>
+</div>`
+})
+}
+
+function sendMsg(){
+let text=msgInput.value
+if(!text)return
+let time=new Date().toLocaleTimeString()
+chats.push({text,me:true,time})
+localStorage.setItem("circleChats",JSON.stringify(chats))
+msgInput.value=""
+loadChat()
+}
+
+/* LIVE */
+let stream
+function showLive(){
+hideAll()
+live.style.display="block"
+navigator.mediaDevices.getUserMedia({video:true}).then(s=>{stream=s;cam.srcObject=s})
+}
+
+function spawnHeart(){
+let h=document.createElement("div")
+h.className="heart"
+h.innerText="❤️"
+live.appendChild(h)
+setTimeout(()=>h.remove(),2000)
+}
+
+/* PROFILE */
+function showProfile(){
+hideAll()
+profile.style.display="block"
+profileImg.src=user.photo
 }
 
 function saveProfile(){
- if(!user)return;
- const file=pAvatar.files[0];
- const name=pName.value||user.name;
- const badge=pBadge.value||user.badge;
- if(file){
-  const r=new FileReader();
-  r.onload=()=>{
-   user={name,badge,avatar:r.result};
-   localStorage.setItem('circleUser',JSON.stringify(user));
-   loadUser();
-  }
-  r.readAsDataURL(file);
- }else{
-  user={name,badge,avatar:user.avatar};
-  localStorage.setItem('circleUser',JSON.stringify(user));
-  loadUser();
- }
+let name=newName.value
+let file=newPhoto.files[0]
+let r=new FileReader()
+r.onload=()=>{
+user.name=name||user.name
+user.photo=r.result
+localStorage.setItem("circleUser",JSON.stringify(user))
+alert("저장 완료")
+}
+file?r.readAsDataURL(file):(user.name=name||user.name,localStorage.setItem("circleUser",JSON.stringify(user)),alert("저장 완료"))
 }
 
-function loadUser(){
- if(!user)return;
- myName.innerText=user.name;
- myAvatar.src=user.avatar||'https://i.imgur.com/4M34hi2.png';
- myBadge.innerText=user.badge.toUpperCase();
- myBadge.className='badge '+user.badge;
+/* HOME */
+function showFeed(){
+hideAll()
+feed.style.display="block"
 }
 
-function addPost(){
- if(!user){alert('로그인');return;}
- const text=postText.value.trim();
- if(!text)return;
- const pin=pinCheck.checked && user.badge==='admin';
- const file=postImage.files[0];
- if(file){
-  const r=new FileReader();
-  r.onload=()=>savePost(text,r.result,pin);
-  r.readAsDataURL(file);
- }else savePost(text,'',pin);
+/* UTIL */
+function hideAll(){
+feed.style.display="none"
+chat.style.display="none"
+profile.style.display="none"
+live.style.display="none"
+chatInput.style.display="none"
 }
 
-function savePost(text,img,pin){
- posts.unshift({id:Date.now(),author:user,text,img,pinned:pin,time:new Date().toLocaleString(),likes:0,views:0,comments:[],reports:0});
- sync();render();
- postText.value='';postImage.value='';pinCheck.checked=false;
+function logout(){
+localStorage.clear()
+location.reload()
 }
-
-function filterPosts(v){filter=v;render();}
-
-function likePost(id){const p=posts.find(x=>x.id===id);p.likes++;sync();render();}
-function viewPost(id){const p=posts.find(x=>x.id===id);p.views++;sync();}
-function reportPost(id){if(confirm('신고?')){const p=posts.find(x=>x.id===id);p.reports++;sync();alert('접수 완료');}}
-
-function addComment(id){const t=prompt('댓글');if(!t)return;const p=posts.find(x=>x.id===id);p.comments.push({text:t,reply:[]});sync();render();}
-function replyComment(pid,i){const t=prompt('답글');if(!t)return;const p=posts.find(x=>x.id===pid);p.comments[i].reply.push(t);sync();render();}
-
-function sync(){localStorage.setItem('circlePosts',JSON.stringify(posts));}
-
-function render(){
- postList.innerHTML='';
- let list=[...posts].sort((a,b)=>b.pinned-a.pinned);
- if(filter==='notice')list=list.filter(p=>p.pinned);
- if(filter==='official')list=list.filter(p=>p.author.badge==='official');
-
- list.forEach(p=>{
-  const el=document.createElement('div');
-  el.className='card';
-  viewPost(p.id);
-
-  el.innerHTML=`
-  <div class="flex">
-   <img class="avatar" src="${p.author.avatar||'https://i.imgur.com/4M34hi2.png'}">
-   <div>
-    <div class="title-name">${p.author.name}${p.author.badge==='official'?'<span class=check>✔</span>':''}</div>
-    <div class="meta"><span class="badge ${p.author.badge}">${p.author.badge}</span>${p.time}</div>
-   </div>
-   ${p.pinned?'<span class=pinned>공지</span>':''}
-  </div>
-  <div class="content">${p.text}</div>
-  ${p.img?`<img src="${p.img}" style="width:100%;border-radius:12px;margin-top:8px">`:''}
-  <div class="action-row">
-   <span onclick="likePost(${p.id})">❤️ ${p.likes}</span>
-   <span>👁 ${p.views}</span>
-   <span onclick="addComment(${p.id})">💬 ${p.comments.length}</span>
-   <span onclick="reportPost(${p.id})">🚨</span>
-  </div>
-  <div class="comment-box">
-   ${p.comments.map((c,i)=>`<div class=comment>${c.text}<span onclick=replyComment(${p.id},${i}) style=color:blue;cursor:pointer> 답글</span>${c.reply.map(r=>`<div class='comment reply'>${r}</div>`).join('')}</div>`).join('')}
-  </div>`;
-
-  postList.appendChild(el);
- });
-}
-
-loadUser();render();
 </script>
+
 </body>
 </html>
+
 
