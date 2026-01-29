@@ -3,28 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <title>CIRCLE</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
 <style>
 *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-body{margin:0;background:#fff;overflow-x:hidden}
+body{margin:0;background:#fff}
 
 /* Splash */
 #splash{
 position:fixed;inset:0;background:white;display:flex;
 align-items:center;justify-content:center;font-size:32px;font-weight:700;
-animation:fadeout 1.5s forwards;z-index:20
-}
-@keyframes fadeout{
-0%{opacity:1}
-80%{opacity:1}
-100%{opacity:0;visibility:hidden}
+z-index:30
 }
 
 /* LOGIN */
 #login{
 position:fixed;inset:0;background:white;display:flex;
-flex-direction:column;align-items:center;justify-content:center;z-index:10
+flex-direction:column;align-items:center;justify-content:center;z-index:20
 }
 #login input{padding:12px;border-radius:14px;border:1px solid #ddd;width:240px;margin-top:10px}
 #login button{margin-top:12px;padding:12px 22px;border-radius:16px;border:none;background:black;color:white}
@@ -33,9 +28,7 @@ flex-direction:column;align-items:center;justify-content:center;z-index:10
 header{text-align:center;padding:14px;font-weight:700;border-bottom:1px solid #eee}
 
 /* STORY */
-#storyBar{
-display:flex;gap:10px;padding:10px;overflow-x:auto
-}
+#storyBar{display:flex;gap:10px;padding:10px;overflow-x:auto}
 .story{
 width:60px;height:60px;border-radius:50%;
 background:linear-gradient(45deg,#ff9acb,#ffd1e6);
@@ -52,22 +45,21 @@ animation:slide .3s ease
 from{transform:translateY(10px);opacity:.5}
 to{transform:translateY(0);opacity:1}
 }
-.post img{width:100%;border-radius:16px;margin-top:8px}
-.actions button{border:none;background:none;font-size:14px;margin-right:6px}
+.actions button{border:none;background:none}
 
 /* CHAT */
 #chat{display:none;padding-bottom:100px}
-.msgBox{display:flex;flex-direction:column}
 .msg{
 max-width:70%;padding:10px;border-radius:16px;margin:6px;font-size:14px
 }
 .me{background:#ffc1d6}
 .other{background:#f2f2f2;align-self:flex-end}
-.time{font-size:10px;color:#666;margin-top:4px}
+.time{font-size:10px;color:#666}
 
 /* CHAT INPUT */
 #chatInput{
-position:fixed;bottom:60px;width:100%;display:flex;padding:6px;background:white
+position:fixed;bottom:60px;width:100%;display:none;
+padding:6px;background:white
 }
 #chatInput input{flex:1;padding:10px;border-radius:14px;border:1px solid #ddd}
 #chatInput button{border:none;background:#ff9acb;color:white;border-radius:14px;padding:10px;margin-left:5px}
@@ -108,7 +100,7 @@ nav button{background:none;border:none;font-size:16px}
 <h2>CIRCLE</h2>
 <input id="nameInput" placeholder="닉네임">
 <input type="file" id="photoInput">
-<button onclick="login()">ENTER</button>
+<button id="enterBtn">ENTER</button>
 </div>
 
 <header>CIRCLE</header>
@@ -117,26 +109,22 @@ nav button{background:none;border:none;font-size:16px}
 <div class="story">+</div>
 </div>
 
-<!-- FEED -->
 <div id="feed"></div>
 
-<!-- CHAT -->
 <div id="chat">
-<div class="msgBox" id="chatBox"></div>
+<div id="chatBox"></div>
 </div>
 
-<div id="chatInput" style="display:none">
+<div id="chatInput">
 <input id="msgInput" placeholder="메시지 입력">
 <button onclick="sendMsg()">전송</button>
 </div>
 
-<!-- LIVE -->
 <div id="live">
 <video id="cam" autoplay playsinline></video>
 <button id="heartBtn" onclick="spawnHeart()">❤️</button>
 </div>
 
-<!-- PROFILE -->
 <div id="profile">
 <h3>Profile</h3>
 <img id="profileImg" width="120" style="border-radius:50%">
@@ -148,7 +136,6 @@ nav button{background:none;border:none;font-size:16px}
 <button onclick="logout()">로그아웃</button>
 </div>
 
-<!-- NAV -->
 <nav>
 <button onclick="showFeed()">🏠</button>
 <button onclick="showChat()">💬</button>
@@ -158,23 +145,49 @@ nav button{background:none;border:none;font-size:16px}
 </nav>
 
 <script>
+const splash=document.getElementById("splash")
+setTimeout(()=>{splash.style.display="none"},1000)
+
 let user=JSON.parse(localStorage.getItem("circleUser"))
 let posts=JSON.parse(localStorage.getItem("circlePosts"))||[]
 let chats=JSON.parse(localStorage.getItem("circleChats"))||[]
 
-if(user){login.style.display="none";loadFeed()}
+const loginBox=document.getElementById("login")
+const feed=document.getElementById("feed")
 
-function login(){
-let name=nameInput.value
-let file=photoInput.files[0]
-let r=new FileReader()
-r.onload=()=>{
-user={name,photo:r.result}
-localStorage.setItem("circleUser",JSON.stringify(user))
-login.style.display="none"
+if(user){
+loginBox.style.display="none"
+showFeed()
 loadFeed()
 }
-file?r.readAsDataURL(file):(user={name,photo:""},localStorage.setItem("circleUser",JSON.stringify(user)),login.style.display="none",loadFeed())
+
+/* LOGIN FIX */
+document.getElementById("enterBtn").onclick=function(){
+let name=nameInput.value.trim()
+if(!name){
+alert("닉네임 입력해줘")
+return
+}
+
+let file=photoInput.files[0]
+
+if(file){
+let r=new FileReader()
+r.onload=function(){
+saveUser(name,r.result)
+}
+r.readAsDataURL(file)
+}else{
+saveUser(name,"")
+}
+}
+
+function saveUser(name,photo){
+user={name,photo}
+localStorage.setItem("circleUser",JSON.stringify(user))
+loginBox.style.display="none"
+showFeed()
+loadFeed()
 }
 
 /* FEED */
@@ -184,7 +197,6 @@ posts.forEach((p,i)=>{
 feed.innerHTML+=`
 <div class="post">
 <b>${p.name}</b><br>${p.text}
-${p.img?`<img src="${p.img}">`:""}
 <div class="actions">
 <button onclick="like(${i})">❤️ ${p.like||0}</button>
 <button onclick="editPost(${i})">✏️</button>
@@ -194,8 +206,9 @@ ${p.img?`<img src="${p.img}">`:""}
 })
 }
 
+/* POST */
 function createPost(){
-let text=prompt("내용 입력")
+let text=prompt("글 내용")
 if(!text)return
 posts.unshift({name:user.name,text,like:0})
 savePost()
@@ -240,7 +253,7 @@ ${c.text}
 }
 
 function sendMsg(){
-let text=msgInput.value
+let text=msgInput.value.trim()
 if(!text)return
 let time=new Date().toLocaleTimeString()
 chats.push({text,me:true,time})
@@ -254,7 +267,10 @@ let stream
 function showLive(){
 hideAll()
 live.style.display="block"
-navigator.mediaDevices.getUserMedia({video:true}).then(s=>{stream=s;cam.srcObject=s})
+navigator.mediaDevices.getUserMedia({video:true}).then(s=>{
+stream=s
+cam.srcObject=s
+})
 }
 
 function spawnHeart(){
@@ -273,16 +289,26 @@ profileImg.src=user.photo
 }
 
 function saveProfile(){
-let name=newName.value
+let name=newName.value.trim()
 let file=newPhoto.files[0]
+
+if(file){
 let r=new FileReader()
-r.onload=()=>{
-user.name=name||user.name
+r.onload=function(){
 user.photo=r.result
+user.name=name||user.name
+finishProfileSave()
+}
+r.readAsDataURL(file)
+}else{
+user.name=name||user.name
+finishProfileSave()
+}
+}
+
+function finishProfileSave(){
 localStorage.setItem("circleUser",JSON.stringify(user))
 alert("저장 완료")
-}
-file?r.readAsDataURL(file):(user.name=name||user.name,localStorage.setItem("circleUser",JSON.stringify(user)),alert("저장 완료"))
 }
 
 /* HOME */
@@ -308,5 +334,6 @@ location.reload()
 
 </body>
 </html>
+
 
 
