@@ -3,80 +3,120 @@
 <head>
 <meta charset="UTF-8">
 <title>CIRCLE</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 body{margin:0;background:#fff}
 
-/* Splash */
-#splash{
-position:fixed;inset:0;background:white;display:flex;
-align-items:center;justify-content:center;font-size:32px;font-weight:700;
-z-index:30
-}
-
 /* LOGIN */
 #login{
-position:fixed;inset:0;background:white;display:flex;
-flex-direction:column;align-items:center;justify-content:center;z-index:20
+position:fixed;inset:0;background:white;
+display:flex;flex-direction:column;
+align-items:center;justify-content:center;z-index:10
 }
-#login input{padding:12px;border-radius:14px;border:1px solid #ddd;width:240px;margin-top:10px}
-#login button{margin-top:12px;padding:12px 22px;border-radius:16px;border:none;background:black;color:white}
+#login input{padding:12px;border-radius:12px;border:1px solid #ddd;width:240px;margin:6px}
+#login button{padding:12px 22px;border:none;border-radius:14px;background:black;color:white}
 
 /* HEADER */
 header{text-align:center;padding:14px;font-weight:700;border-bottom:1px solid #eee}
 
-/* STORY */
-#storyBar{display:flex;gap:10px;padding:10px;overflow-x:auto}
-.story{
-width:60px;height:60px;border-radius:50%;
-background:linear-gradient(45deg,#ff9acb,#ffd1e6);
-display:flex;align-items:center;justify-content:center;color:white;font-weight:700
+/* COMMUNITY */
+#feed{padding-bottom:120px}
+.post{
+background:#ffd6e5;
+margin:12px;
+padding:14px;
+border-radius:20px
+}
+.post-header{display:flex;align-items:center;gap:8px}
+.post-header img{width:34px;height:34px;border-radius:50%}
+.actions button{border:none;background:none;margin-right:8px}
+
+.comment-box{
+margin-top:10px;
+background:white;
+border-radius:14px;
+padding:8px
+}
+.comment{
+font-size:13px;
+margin-bottom:6px
+}
+.comment-input{
+display:flex;
+gap:6px
+}
+.comment-input textarea{
+flex:1;
+border-radius:10px;
+border:1px solid #ddd;
+padding:6px;
+resize:none
 }
 
-/* FEED */
-#feed{padding-bottom:110px}
-.post{
-background:#ffd6e5;margin:12px;border-radius:22px;padding:14px;
-animation:slide .3s ease
+/* POST MODAL */
+#postModal{
+position:fixed;inset:0;
+background:rgba(0,0,0,.4);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:20
 }
-@keyframes slide{
-from{transform:translateY(10px);opacity:.5}
-to{transform:translateY(0);opacity:1}
+#postBox{
+background:white;
+padding:20px;
+border-radius:20px;
+width:90%
 }
-.actions button{border:none;background:none}
+#postBox textarea{
+width:100%;
+height:100px;
+resize:none;
+border-radius:12px;
+padding:10px
+}
 
 /* CHAT */
-#chat{display:none;padding-bottom:100px}
-.msg{
-max-width:70%;padding:10px;border-radius:16px;margin:6px;font-size:14px
+#chat{display:none;padding-bottom:110px}
+.chatMsg{
+display:flex;
+align-items:flex-start;
+gap:8px;
+margin:10px
 }
-.me{background:#ffc1d6}
-.other{background:#f2f2f2;align-self:flex-end}
-.time{font-size:10px;color:#666}
+.chatMsg img{width:34px;height:34px;border-radius:50%}
+.bubble{
+background:#ffc1d6;
+padding:10px;
+border-radius:14px;
+max-width:70%
+}
+.time{font-size:10px;color:#666;margin-top:4px}
 
-/* CHAT INPUT */
 #chatInput{
-position:fixed;bottom:60px;width:100%;display:none;
-padding:6px;background:white
+position:fixed;
+bottom:60px;
+width:100%;
+display:none;
+padding:8px;
+background:white
 }
-#chatInput input{flex:1;padding:10px;border-radius:14px;border:1px solid #ddd}
-#chatInput button{border:none;background:#ff9acb;color:white;border-radius:14px;padding:10px;margin-left:5px}
-
-/* LIVE */
-#live{display:none;position:relative}
-#live video{width:100%;height:100vh;object-fit:cover}
-#heartBtn{
-position:absolute;right:15px;bottom:100px;font-size:28px;border:none;background:none
+#chatInput textarea{
+flex:1;
+border-radius:12px;
+padding:8px;
+border:1px solid #ddd;
+resize:none
 }
-.heart{
-position:absolute;bottom:120px;right:20px;font-size:24px;
-animation:float 2s forwards
-}
-@keyframes float{
-from{transform:translateY(0);opacity:1}
-to{transform:translateY(-200px);opacity:0}
+#chatInput button{
+margin-left:6px;
+border:none;
+background:#ff9acb;
+color:white;
+border-radius:12px;
+padding:10px
 }
 
 /* PROFILE */
@@ -84,49 +124,46 @@ to{transform:translateY(-200px);opacity:0}
 
 /* NAV */
 nav{
-position:fixed;bottom:0;width:100%;background:white;
-display:flex;justify-content:space-around;padding:10px;border-top:1px solid #eee
+position:fixed;
+bottom:0;
+width:100%;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:10px;
+border-top:1px solid #eee
 }
-nav button{background:none;border:none;font-size:16px}
+nav button{border:none;background:none;font-size:16px}
+
 </style>
 </head>
 
 <body>
-
-<div id="splash">CIRCLE</div>
 
 <!-- LOGIN -->
 <div id="login">
 <h2>CIRCLE</h2>
 <input id="nameInput" placeholder="닉네임">
 <input type="file" id="photoInput">
-<button id="enterBtn">ENTER</button>
+<button onclick="login()">ENTER</button>
 </div>
 
 <header>CIRCLE</header>
 
-<div id="storyBar">
-<div class="story">+</div>
-</div>
-
+<!-- COMMUNITY -->
 <div id="feed"></div>
 
-<div id="chat">
-<div id="chatBox"></div>
-</div>
+<!-- CHAT -->
+<div id="chat"></div>
 
 <div id="chatInput">
-<input id="msgInput" placeholder="메시지 입력">
+<textarea id="msgInput" placeholder="메시지 입력"></textarea>
 <button onclick="sendMsg()">전송</button>
 </div>
 
-<div id="live">
-<video id="cam" autoplay playsinline></video>
-<button id="heartBtn" onclick="spawnHeart()">❤️</button>
-</div>
-
+<!-- PROFILE -->
 <div id="profile">
-<h3>Profile</h3>
+<h3>프로필 설정</h3>
 <img id="profileImg" width="120" style="border-radius:50%">
 <br><br>
 <input id="newName" placeholder="닉네임 변경">
@@ -136,44 +173,45 @@ nav button{background:none;border:none;font-size:16px}
 <button onclick="logout()">로그아웃</button>
 </div>
 
+<!-- POST MODAL -->
+<div id="postModal">
+<div id="postBox">
+<h3>글 작성</h3>
+<textarea id="postText" placeholder="내용 입력"></textarea>
+<br><br>
+<button onclick="uploadPost()">올리기</button>
+<button onclick="closePost()">닫기</button>
+</div>
+</div>
+
+<!-- NAV -->
 <nav>
 <button onclick="showFeed()">🏠</button>
 <button onclick="showChat()">💬</button>
-<button onclick="createPost()">➕</button>
-<button onclick="showLive()">🔴</button>
+<button onclick="openPost()">➕</button>
 <button onclick="showProfile()">👤</button>
 </nav>
 
 <script>
-const splash=document.getElementById("splash")
-setTimeout(()=>{splash.style.display="none"},1000)
-
-let user=JSON.parse(localStorage.getItem("circleUser"))
-let posts=JSON.parse(localStorage.getItem("circlePosts"))||[]
-let chats=JSON.parse(localStorage.getItem("circleChats"))||[]
-
-const loginBox=document.getElementById("login")
-const feed=document.getElementById("feed")
+let user = JSON.parse(localStorage.getItem("circleUser"))
+let posts = JSON.parse(localStorage.getItem("circlePosts")) || []
+let chats = JSON.parse(localStorage.getItem("circleChats")) || []
 
 if(user){
-loginBox.style.display="none"
-showFeed()
+login.style.display="none"
 loadFeed()
 }
 
-/* LOGIN FIX */
-document.getElementById("enterBtn").onclick=function(){
+/* LOGIN */
+function login(){
 let name=nameInput.value.trim()
-if(!name){
-alert("닉네임 입력해줘")
-return
-}
+if(!name){alert("닉네임 입력");return}
 
 let file=photoInput.files[0]
 
 if(file){
 let r=new FileReader()
-r.onload=function(){
+r.onload=()=>{
 saveUser(name,r.result)
 }
 r.readAsDataURL(file)
@@ -185,50 +223,87 @@ saveUser(name,"")
 function saveUser(name,photo){
 user={name,photo}
 localStorage.setItem("circleUser",JSON.stringify(user))
-loginBox.style.display="none"
-showFeed()
+login.style.display="none"
 loadFeed()
 }
 
-/* FEED */
+/* COMMUNITY */
 function loadFeed(){
 feed.innerHTML=""
 posts.forEach((p,i)=>{
 feed.innerHTML+=`
 <div class="post">
-<b>${p.name}</b><br>${p.text}
+<div class="post-header">
+<img src="${p.photo||''}">
+<b>${p.name}</b>
+</div>
+<div style="white-space:pre-wrap">${p.text}</div>
+
 <div class="actions">
 <button onclick="like(${i})">❤️ ${p.like||0}</button>
-<button onclick="editPost(${i})">✏️</button>
 <button onclick="delPost(${i})">🗑</button>
 </div>
-</div>`
+
+<div class="comment-box">
+${(p.comments||[]).map(c=>`<div class="comment"><b>${c.name}</b>: ${c.text}</div>`).join("")}
+<div class="comment-input">
+<textarea id="c${i}" placeholder="댓글"></textarea>
+<button onclick="addComment(${i})">보내기</button>
+</div>
+</div>
+
+</div>
+`
 })
 }
 
-/* POST */
-function createPost(){
-let text=prompt("글 내용")
+function openPost(){postModal.style.display="flex"}
+function closePost(){postModal.style.display="none"}
+
+function uploadPost(){
+let text=postText.value.trim()
 if(!text)return
-posts.unshift({name:user.name,text,like:0})
-savePost()
-}
 
-function editPost(i){
-let t=prompt("수정",posts[i].text)
-if(t){posts[i].text=t;savePost()}
-}
+posts.unshift({
+name:user.name,
+photo:user.photo,
+text:text,
+like:0,
+comments:[]
+})
 
-function delPost(i){
-if(confirm("삭제?")){posts.splice(i,1);savePost()}
+localStorage.setItem("circlePosts",JSON.stringify(posts))
+postText.value=""
+closePost()
+loadFeed()
 }
 
 function like(i){
 posts[i].like++
-savePost()
+savePosts()
 }
 
-function savePost(){
+function delPost(i){
+if(confirm("삭제?")){
+posts.splice(i,1)
+savePosts()
+}
+}
+
+function addComment(i){
+let input=document.getElementById("c"+i)
+let text=input.value.trim()
+if(!text)return
+
+posts[i].comments.push({
+name:user.name,
+text:text
+})
+
+savePosts()
+}
+
+function savePosts(){
 localStorage.setItem("circlePosts",JSON.stringify(posts))
 loadFeed()
 }
@@ -242,43 +317,37 @@ loadChat()
 }
 
 function loadChat(){
-chatBox.innerHTML=""
+chat.innerHTML=""
 chats.forEach(c=>{
-chatBox.innerHTML+=`
-<div class="msg ${c.me?'me':'other'}">
-${c.text}
+chat.innerHTML+=`
+<div class="chatMsg">
+<img src="${c.photo}">
+<div>
+<b>${c.name}</b>
+<div class="bubble" style="white-space:pre-wrap">${c.text}</div>
 <div class="time">${c.time}</div>
-</div>`
+</div>
+</div>
+`
 })
 }
 
 function sendMsg(){
 let text=msgInput.value.trim()
 if(!text)return
+
 let time=new Date().toLocaleTimeString()
-chats.push({text,me:true,time})
+
+chats.push({
+name:user.name,
+photo:user.photo,
+text:text,
+time:time
+})
+
 localStorage.setItem("circleChats",JSON.stringify(chats))
 msgInput.value=""
 loadChat()
-}
-
-/* LIVE */
-let stream
-function showLive(){
-hideAll()
-live.style.display="block"
-navigator.mediaDevices.getUserMedia({video:true}).then(s=>{
-stream=s
-cam.srcObject=s
-})
-}
-
-function spawnHeart(){
-let h=document.createElement("div")
-h.className="heart"
-h.innerText="❤️"
-live.appendChild(h)
-setTimeout(()=>h.remove(),2000)
 }
 
 /* PROFILE */
@@ -294,38 +363,37 @@ let file=newPhoto.files[0]
 
 if(file){
 let r=new FileReader()
-r.onload=function(){
+r.onload=()=>{
 user.photo=r.result
 user.name=name||user.name
-finishProfileSave()
+finishProfile()
 }
 r.readAsDataURL(file)
 }else{
 user.name=name||user.name
-finishProfileSave()
+finishProfile()
 }
 }
 
-function finishProfileSave(){
+function finishProfile(){
 localStorage.setItem("circleUser",JSON.stringify(user))
 alert("저장 완료")
 }
 
-/* HOME */
+/* NAV */
 function showFeed(){
 hideAll()
 feed.style.display="block"
 }
 
-/* UTIL */
 function hideAll(){
 feed.style.display="none"
 chat.style.display="none"
 profile.style.display="none"
-live.style.display="none"
 chatInput.style.display="none"
 }
 
+/* LOGOUT */
 function logout(){
 localStorage.clear()
 location.reload()
