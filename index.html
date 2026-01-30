@@ -2,389 +2,186 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>CIRCLE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<title>AOUSE</title>
 <style>
-*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont}
-body{margin:0;background:#fff}
-
-.hidden{display:none}
-
-button{border:none;border-radius:10px;padding:10px;cursor:pointer}
-
-input,textarea{
-width:100%;
-padding:10px;
-border-radius:10px;
-border:1px solid #ddd;
-outline:none;
-}
-
-/* LOGIN */
-
-#login{
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-gap:15px;
-}
-
-#login input{width:220px;text-align:center}
-
-/* NAV */
-
-nav{
-position:fixed;
-bottom:0;
-width:100%;
-background:#fff;
-display:flex;
-justify-content:space-around;
-padding:10px;
-border-top:1px solid #eee;
-}
-
-nav button{background:none;font-size:18px}
-
-/* HOME */
-
-#home{padding:15px;padding-bottom:80px}
-
-.card{
-background:#ffd6e8;
-border-radius:20px;
-padding:15px;
-margin-bottom:15px;
-animation:pop .4s ease;
-}
-
-@keyframes pop{
-from{transform:scale(.9);opacity:0}
-to{transform:scale(1);opacity:1}
-}
-
-/* STORY */
-
-#stories{display:flex;gap:10px;overflow-x:auto}
-
-.story{
-width:70px;height:70px;
-border-radius:50%;
-background:#ff7ab6;
-display:flex;
-align-items:center;
-justify-content:center;
-color:#fff;
-font-weight:bold;
-}
-
-/* COMMUNITY */
-
-.post{
-background:#ffd6e8;
-padding:15px;
-border-radius:20px;
-margin-bottom:15px;
-}
-
-.post img{width:100%;border-radius:15px;margin-top:10px}
-
-.actions button{margin-right:5px}
-
-/* CHAT */
-
-#chatList div{
-padding:12px;
-border-bottom:1px solid #eee;
-cursor:pointer;
-}
-
-.chatBox{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:#fff;
-display:flex;
-flex-direction:column;
-}
-
-.messages{
-flex:1;
-padding:10px;
-overflow-y:auto;
-}
-
-.msg{
-margin-bottom:10px;
-}
-
-.bubble{
-display:inline-block;
-padding:10px;
-border-radius:15px;
-background:#ffd6e8;
-}
-
-.time{font-size:11px;color:#666}
-
-/* LIVE */
-
-#live video{width:100%}
-
-.heart{
-position:absolute;
-bottom:80px;
-right:30px;
-font-size:24px;
-animation:float 2s linear forwards;
-}
-
-@keyframes float{
-from{transform:translateY(0);opacity:1}
-to{transform:translateY(-150px);opacity:0}
-}
-
+*{box-sizing:border-box;font-family:Arial, sans-serif}
+body{margin:0;background:#f5f7fb}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:white;border-bottom:1px solid #eee}
+.logo{font-weight:800;font-size:22px}
+.btn{padding:8px 14px;border-radius:14px;border:none;background:#222;color:white;cursor:pointer}
+.container{max-width:900px;margin:20px auto;padding:10px}
+.card{background:white;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 5px 10px rgba(0,0,0,.05)}
+.post-item{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.post-title{font-weight:700;font-size:18px}
+.badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:11px;color:white;background:#3b82f6;margin-left:5px}
+.pinned{color:#f59e0b;margin-right:6px}
+.modal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.3);display:none;align-items:center;justify-content:center}
+.modal{background:white;border-radius:20px;padding:20px;width:320px}
+.modal h2{margin-top:0}
+.input{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-bottom:10px}
+.flex{display:flex;gap:8px}
+.comment{margin-top:10px;padding-left:10px;border-left:2px solid #eee}
+.reply{margin-left:15px}
 </style>
 </head>
-
 <body>
+<header>
+<div class="logo">AOUSE</div>
+<div>
+<button id="writeBtn" class="btn" style="display:none">글쓰기</button>
+<button id="loginBtn" class="btn">ARRIVE</button>
+</div>
+</header>
 
-<!-- LOGIN -->
-<div id="login">
-<h2>CIRCLE</h2>
-<input id="nameInput" placeholder="닉네임">
-<button onclick="login()">ENTER</button>
+<div class="container" id="postList"></div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-bg" id="loginModal">
+<div class="modal">
+<h2>ARRIVE</h2>
+<input class="input" id="loginId" placeholder="ALLOW">
+<input class="input" id="loginPw" type="password" placeholder="ACODE">
+<div class="flex">
+<button class="btn" onclick="closeLogin()">BACK</button>
+<button class="btn" onclick="login()">GO</button>
+</div>
+</div>
 </div>
 
-<!-- APP -->
-<div id="app" class="hidden">
-
-<!-- HOME -->
-<div id="home">
-<div id="stories"></div>
-<div id="feed"></div>
+<!-- WRITE MODAL -->
+<div class="modal-bg" id="writeModal">
+<div class="modal">
+<h2>글쓰기</h2>
+<input class="input" id="postTitle" placeholder="제목">
+<textarea class="input" id="postContent" placeholder="내용"></textarea>
+<input class="input" type="file" id="postImage">
+<label><input type="checkbox" id="postPinned"> pinned</label>
+<div class="flex">
+<button class="btn" onclick="closeWrite()">취소</button>
+<button class="btn" onclick="submitPost()">등록</button>
+</div>
+</div>
 </div>
 
-<!-- COMMUNITY -->
-<div id="community" class="hidden">
-<button onclick="openWrite()">글쓰기</button>
-<div id="posts"></div>
+<!-- VIEW MODAL -->
+<div class="modal-bg" id="viewModal">
+<div class="modal" style="width:90%;max-width:500px">
+<div id="viewContent"></div>
+<hr>
+<input class="input" id="commentInput" placeholder="댓글 작성">
+<button class="btn" onclick="addComment()">댓글 등록</button>
+<div id="commentList"></div>
+<button class="btn" onclick="closeView()" style="margin-top:10px">닫기</button>
 </div>
-
-<!-- CHAT -->
-<div id="chat" class="hidden">
-<button onclick="newChat()">+ 채팅 추가</button>
-<div id="chatList"></div>
-</div>
-
-<!-- LIVE -->
-<div id="live" class="hidden">
-<video id="camera" autoplay></video>
-<button onclick="heart()">❤️</button>
-</div>
-
-<nav>
-<button onclick="show('home')">🏠</button>
-<button onclick="show('community')">📝</button>
-<button onclick="show('chat')">💬</button>
-<button onclick="show('live')">🔴</button>
-</nav>
-
 </div>
 
 <script>
+let posts = JSON.parse(localStorage.getItem('posts')) || [];
+let user = JSON.parse(localStorage.getItem('user')) || null;
+let currentPost = null;
 
-let user = localStorage.getItem("circleUser");
-if(user){
-document.getElementById("login").classList.add("hidden");
-document.getElementById("app").classList.remove("hidden");
+const demo = {
+ id:Date.now(),
+ title:"!!AOUSE 이용 안내!!",
+ content:"안녕하세요! AOUSE 커뮤니티입니다.",
+ image:null,
+ pinned:true,
+ author:"ARCEN",
+ badge:true,
+ date:new Date().toLocaleString(),
+ comments:[]
 }
 
-document.getElementById("nameInput").addEventListener("keydown",e=>{
-if(e.key==="Enter") login();
-});
+if(posts.length===0){posts.push(demo);save()}
+
+function save(){localStorage.setItem('posts',JSON.stringify(posts))}
+
+function render(){
+ const list=document.getElementById('postList');
+ list.innerHTML="";
+ const sorted=[...posts].sort((a,b)=>b.pinned-a.pinned);
+ sorted.forEach(p=>{
+ const div=document.createElement('div');
+ div.className='card post-item';
+ div.innerHTML=`<div><span class='pinned'>${p.pinned?'📌':''}</span><span class='post-title'>${p.title}</span></div><div>${p.author}${p.badge?'<span class="badge">✔</span>':''}</div>`;
+ div.onclick=()=>openPost(p.id);
+ list.appendChild(div);
+ })
+}
+
+function openPost(id){
+ currentPost=posts.find(p=>p.id===id);
+ document.getElementById('viewModal').style.display='flex';
+ const v=document.getElementById('viewContent');
+ v.innerHTML=`<b>${currentPost.title}</b><br><small>${currentPost.author} · ${currentPost.date}</small><p>${currentPost.content}</p>${currentPost.image?'<img src="'+currentPost.image+'" width="100%">':''}`;
+ renderComments();
+}
+
+function closeView(){document.getElementById('viewModal').style.display='none'}
+
+function renderComments(){
+ const c=document.getElementById('commentList');
+ c.innerHTML='';
+ currentPost.comments.forEach(cm=>{
+ const d=document.createElement('div');
+ d.className='comment';
+ d.innerHTML=`<b>${cm.author}</b> ${cm.text}`;
+ c.appendChild(d);
+ })
+}
+
+function addComment(){
+ if(!user){alert('로그인 필요');return}
+ const txt=document.getElementById('commentInput').value;
+ if(!txt)return;
+ currentPost.comments.push({author:user.id,text:txt});
+ save();
+ document.getElementById('commentInput').value='';
+ renderComments();
+}
 
 function login(){
-let name = nameInput.value.trim();
-if(!name)return alert("닉네임 입력");
-localStorage.setItem("circleUser",name);
-location.reload();
+ const id=document.getElementById('loginId').value;
+ const pw=document.getElementById('loginPw').value;
+ if(id&&pw){
+ user={id};
+ localStorage.setItem('user',JSON.stringify(user));
+ closeLogin();
+ document.getElementById('writeBtn').style.display='inline-block';
+ alert('로그인 성공');
+ }
 }
 
-/* NAV */
+function closeLogin(){document.getElementById('loginModal').style.display='none'}
 
-function show(id){
-["home","community","chat","live"].forEach(x=>{
-document.getElementById(x).classList.add("hidden");
-});
-document.getElementById(id).classList.remove("hidden");
+function submitPost(){
+ const t=document.getElementById('postTitle').value;
+ const c=document.getElementById('postContent').value;
+ const pin=document.getElementById('postPinned').checked;
+ const img=document.getElementById('postImage').files[0];
+ if(!t||!c)return;
+ const reader=new FileReader();
+ reader.onload=function(){
+ posts.push({
+ id:Date.now(),title:t,content:c,image:img?reader.result:null,pinned:pin,author:user.id,badge:false,date:new Date().toLocaleString(),comments:[]
+ })
+ save();
+ closeWrite();
+ render();
+ }
+ if(img)reader.readAsDataURL(img); else reader.onload();
 }
 
-/* STORY */
+function closeWrite(){document.getElementById('writeModal').style.display='none'}
 
-let stories = JSON.parse(localStorage.getItem("stories")||"[]");
+document.getElementById('loginBtn').onclick=()=>document.getElementById('loginModal').style.display='flex';
+document.getElementById('writeBtn').onclick=()=>document.getElementById('writeModal').style.display='flex';
 
-function renderStory(){
-storiesDiv.innerHTML="";
-stories.forEach(s=>{
-let d=document.createElement("div");
-d.className="story";
-d.innerText=s.name[0];
-storiesDiv.appendChild(d);
-});
-}
-
-storiesDiv=document.getElementById("stories");
-
-storiesDiv.onclick=()=>{
-let file=document.createElement("input");
-file.type="file";
-file.onchange=e=>{
-let reader=new FileReader();
-reader.onload=()=>{
-stories.push({name:user,img:reader.result});
-localStorage.setItem("stories",JSON.stringify(stories));
-renderStory();
-};
-reader.readAsDataURL(e.target.files[0]);
-};
-file.click();
-}
-
-renderStory();
-
-/* COMMUNITY */
-
-let posts=JSON.parse(localStorage.getItem("posts")||"[]");
-
-function openWrite(){
-let txt=prompt("내용 입력");
-if(!txt)return;
-posts.unshift({user,txt,likes:0});
-savePost();
-}
-
-function savePost(){
-localStorage.setItem("posts",JSON.stringify(posts));
-renderPost();
-}
-
-function renderPost(){
-postsDiv.innerHTML="";
-posts.forEach((p,i)=>{
-let d=document.createElement("div");
-d.className="post";
-d.innerHTML=`
-<b>${p.user}</b>
-<p>${p.txt.replace(/\n/g,"<br>")}</p>
-<div class="actions">
-<button onclick="like(${i})">❤️ ${p.likes}</button>
-<button onclick="editPost(${i})">✏️</button>
-<button onclick="delPost(${i})">🗑</button>
-</div>
-<textarea id="c${i}" placeholder="댓글"></textarea>
-<button onclick="comment(${i})">보내기</button>
-`;
-postsDiv.appendChild(d);
-});
-}
-
-postsDiv=document.getElementById("posts");
-
-function like(i){posts[i].likes++;savePost()}
-function delPost(i){posts.splice(i,1);savePost()}
-function editPost(i){
-let t=prompt("수정",posts[i].txt);
-if(t){posts[i].txt=t;savePost();}
-}
-function comment(i){
-alert("댓글 저장 완료(로컬)");
-}
-
-renderPost();
-
-/* CHAT */
-
-let chats=JSON.parse(localStorage.getItem("chats")||"[]");
-
-function newChat(){
-let name=prompt("상대 이름");
-if(!name)return;
-chats.push({name,msgs:[]});
-saveChat();
-}
-
-function saveChat(){
-localStorage.setItem("chats",JSON.stringify(chats));
-renderChatList();
-}
-
-function renderChatList(){
-chatList.innerHTML="";
-chats.forEach((c,i)=>{
-let d=document.createElement("div");
-d.innerText=c.name;
-d.onclick=()=>openChat(i);
-chatList.appendChild(d);
-});
-}
-
-function openChat(i){
-let box=document.createElement("div");
-box.className="chatBox";
-box.innerHTML=`
-<div class="messages" id="m"></div>
-<input id="send">
-`;
-document.body.appendChild(box);
-
-let input=box.querySelector("#send");
-
-input.addEventListener("keydown",e=>{
-if(e.key==="Enter"){
-let t=input.value;
-if(!t)return;
-chats[i].msgs.push({u:user,t,time:new Date().toLocaleTimeString()});
-saveChat();
-renderMsg();
-input.value="";
-}
-});
-
-function renderMsg(){
-let m=box.querySelector("#m");
-m.innerHTML="";
-chats[i].msgs.forEach(x=>{
-let d=document.createElement("div");
-d.className="msg";
-d.innerHTML=`<b>${x.u}</b><div class="bubble">${x.t}</div><div class="time">${x.time}</div>`;
-m.appendChild(d);
-});
-}
-renderMsg();
-}
-
-renderChatList();
-
-/* LIVE */
-
-navigator.mediaDevices.getUserMedia({video:true})
-.then(s=>camera.srcObject=s);
-
-function heart(){
-let h=document.createElement("div");
-h.className="heart";
-h.innerText="❤️";
-document.body.appendChild(h);
-setTimeout(()=>h.remove(),2000);
-}
-
+if(user){document.getElementById('writeBtn').style.display='inline-block'}
+render();
 </script>
-
 </body>
 </html>
+
+
