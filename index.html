@@ -10,14 +10,14 @@ body{margin:0;background:#f5f7fb}
 header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:white;border-bottom:1px solid #eee}
 .logo{font-weight:800;font-size:22px}
 .btn{padding:8px 14px;border-radius:14px;border:none;background:#222;color:white;cursor:pointer}
-.container{max-width:900px;margin:20px auto;padding:10px}
+.container{max-width:900px;margin:20px auto;padding:10px;height:calc(100vh - 90px);overflow-y:auto}
 .card{background:white;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 5px 10px rgba(0,0,0,.05)}
 .post-item{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
 .post-title{font-weight:700;font-size:18px}
 .badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:11px;color:white;background:#3b82f6;margin-left:5px}
 .pinned{color:#f59e0b;margin-right:6px}
 .modal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.3);display:none;align-items:center;justify-content:center;z-index:100}
-.modal{background:white;border-radius:20px;padding:20px;width:320px}
+.modal{background:white;border-radius:20px;padding:20px;width:320px;max-height:85vh;overflow-y:auto}
 .modal h2{margin-top:0}
 .input{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-bottom:10px}
 .flex{display:flex;gap:8px}
@@ -227,6 +227,7 @@ render();
 
 </body>
 </html>
+
 
 
 
