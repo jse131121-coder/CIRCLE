@@ -80,11 +80,13 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 let posts = JSON.parse(localStorage.getItem('posts')) || [];
 let user = JSON.parse(localStorage.getItem('user')) || null;
 let currentPost = null;
+let editMode = false;
 
 const demo = {
  id:Date.now(),
  title:"!!AOUSE 이용 안내!!",
- content:"안녕하세요! AOUSE 커뮤니티입니다.",
+ content:"안녕하세요! AOUSE 커뮤니티입니다.
+자유롭게 글을 작성해보세요!",
  image:null,
  pinned:true,
  author:"ARCEN",
@@ -114,7 +116,13 @@ function openPost(id){
  currentPost=posts.find(p=>p.id===id);
  document.getElementById('viewModal').style.display='flex';
  const v=document.getElementById('viewContent');
- v.innerHTML=`<b>${currentPost.title}</b><br><small>${currentPost.author} · ${currentPost.date}</small><p>${currentPost.content}</p>${currentPost.image?'<img src="'+currentPost.image+'" width="100%">':''}`;
+ 
+ const controlBtns = (user && user.id===currentPost.author)
+ ? `<div style="margin-top:10px"><button class='btn' onclick='editPost()'>수정</button> <button class='btn' onclick='deletePost()'>삭제</button></div>`
+ : '';
+
+ v.innerHTML=`<b>${currentPost.title}</b><br><small>${currentPost.author} · ${currentPost.date}</small><p>${currentPost.content.replace(/
+/g,'<br>')}</p>${currentPost.image?'<img src="'+currentPost.image+'" width="100%">':''}${controlBtns}`;
  renderComments();
 }
 
@@ -126,7 +134,8 @@ function renderComments(){
  currentPost.comments.forEach(cm=>{
  const d=document.createElement('div');
  d.className='comment';
- d.innerHTML=`<b>${cm.author}</b> ${cm.text}`;
+ d.innerHTML=`<b>${cm.author}</b> ${cm.text.replace(/
+/g,'<br>')}`;
  c.appendChild(d);
  })
 }
@@ -163,9 +172,17 @@ function submitPost(){
  if(!t||!c)return;
  const reader=new FileReader();
  reader.onload=function(){
+ if(editMode){
+ currentPost.title=t;
+ currentPost.content=c;
+ currentPost.pinned=pin;
+ if(img) currentPost.image=reader.result;
+ editMode=false;
+ } else {
  posts.push({
  id:Date.now(),title:t,content:c,image:img?reader.result:null,pinned:pin,author:user.id,badge:false,date:new Date().toLocaleString(),comments:[]
  })
+ }
  save();
  closeWrite();
  render();
@@ -173,7 +190,30 @@ function submitPost(){
  if(img)reader.readAsDataURL(img); else reader.onload();
 }
 
-function closeWrite(){document.getElementById('writeModal').style.display='none'}
+function closeWrite(){
+ document.getElementById('writeModal').style.display='none';
+ editMode=false;
+ document.getElementById('postTitle').value='';
+ document.getElementById('postContent').value='';
+ document.getElementById('postPinned').checked=false;
+}
+
+function editPost(){
+ closeView();
+ editMode=true;
+ document.getElementById('writeModal').style.display='flex';
+ document.getElementById('postTitle').value=currentPost.title;
+ document.getElementById('postContent').value=currentPost.content;
+ document.getElementById('postPinned').checked=currentPost.pinned;
+}
+
+function deletePost(){
+ if(!confirm('게시글 삭제할까요?'))return;
+ posts = posts.filter(p=>p.id!==currentPost.id);
+ save();
+ closeView();
+ render();
+}
 
 document.getElementById('loginBtn').onclick=()=>document.getElementById('loginModal').style.display='flex';
 document.getElementById('writeBtn').onclick=()=>document.getElementById('writeModal').style.display='flex';
@@ -183,5 +223,6 @@ render();
 </script>
 </body>
 </html>
+
 
 
