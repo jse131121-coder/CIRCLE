@@ -22,6 +22,8 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .input{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-bottom:10px}
 .flex{display:flex;gap:8px}
 .comment{margin-top:10px;padding-left:10px;border-left:2px solid #eee}
+.reply{margin-top:6px;margin-left:20px;padding-left:10px;border-left:2px dashed #ddd;font-size:14px}
+.mention{color:#3b82f6;font-weight:bold}
 </style>
 </head>
 <body>
@@ -36,7 +38,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 
 <div class="container" id="postList"></div>
 
-<!-- LOGIN MODAL -->
+<!-- LOGIN -->
 <div class="modal-bg" id="loginModal">
 <div class="modal">
 <h2>ARRIVE</h2>
@@ -49,12 +51,12 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 </div>
 </div>
 
-<!-- WRITE MODAL -->
+<!-- WRITE -->
 <div class="modal-bg" id="writeModal">
 <div class="modal">
 <h2>글쓰기</h2>
-<input class="input" id="postTitle" placeholder="제목">
-<textarea class="input" id="postContent" placeholder="내용"></textarea>
+<input class="input" id="postTitle">
+<textarea class="input" id="postContent"></textarea>
 <input class="input" type="file" id="postImage">
 <label><input type="checkbox" id="postPinned"> pinned</label>
 <div class="flex">
@@ -64,7 +66,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 </div>
 </div>
 
-<!-- VIEW MODAL -->
+<!-- VIEW -->
 <div class="modal-bg" id="viewModal">
 <div class="modal" style="width:90%;max-width:500px">
 <div id="viewContent"></div>
@@ -82,92 +84,159 @@ let user = JSON.parse(localStorage.getItem('aouse_user')) || null;
 let currentPost = null;
 let editMode = false;
 
-if(posts.length === 0){
- const demo={
+if(posts.length===0){
+ posts.push({
   id:Date.now(),
   title:"!!AOUSE 이용 안내!!",
-  content:"안녕하세요! AOUSE 커뮤니티입니다.\n자유롭게 이용해주세요!",
+  content:"안녕하세요! AOUSE 커뮤니티입니다.",
   image:null,
   pinned:true,
   author:"ARCEN",
   badge:true,
   date:new Date().toLocaleString(),
+  time:Date.now(),
   comments:[]
- }
- posts.push(demo);
+ });
  save();
 }
 
+// ---------- SAVE ----------
 function save(){
  localStorage.setItem('aouse_posts',JSON.stringify(posts));
 }
 
+// ---------- MENTION ----------
+function renderMention(text){
+ return text.replace(/@(\w+)/g,
+ '<span class="mention">@$1</span>');
+}
+
+// ---------- RENDER POSTS ----------
 function render(){
  const list=document.getElementById('postList');
  list.innerHTML='';
- const sorted=[...posts].sort((a,b)=>b.pinned-a.pinned);
+
+ const sorted=[...posts].sort((a,b)=>{
+  if(b.pinned!==a.pinned) return b.pinned-a.pinned;
+  return b.time-a.time;
+ });
+
  sorted.forEach(p=>{
   const div=document.createElement('div');
   div.className='card post-item';
-  div.innerHTML=`<div><span class='pinned'>${p.pinned?'📌':''}</span><span class='post-title'>${p.title}</span></div><div>${p.author}${p.badge?'<span class="badge">✔</span>':''}</div>`;
-  div.addEventListener('click',()=>openPost(p.id));
+  div.innerHTML=`
+   <div>
+    <span class='pinned'>${p.pinned?'📌':''}</span>
+    <span class='post-title'>${p.title}</span>
+   </div>
+   <div>${p.author}${p.badge?'<span class="badge">✔</span>':''}</div>
+  `;
+  div.onclick=()=>openPost(p.id);
   list.appendChild(div);
  });
 }
 
+// ---------- OPEN POST ----------
 function openPost(id){
  currentPost=posts.find(p=>p.id===id);
- document.getElementById('viewModal').style.display='flex';
+ viewModal.style.display='flex';
 
  const controls=(user && user.id===currentPost.author)
- ? `<div style="margin-top:10px"><button class='btn' onclick='editPost()'>수정</button> <button class='btn' onclick='deletePost()'>삭제</button></div>`
- : '';
+ ? `<div style="margin-top:10px">
+ <button class="btn" onclick="editPost()">수정</button>
+ <button class="btn" onclick="deletePost()">삭제</button>
+ </div>`:'';
 
- document.getElementById('viewContent').innerHTML=`<b>${currentPost.title}</b><br><small>${currentPost.author} · ${currentPost.date}</small><p>${currentPost.content.replace(/\n/g,'<br>')}</p>${currentPost.image?'<img src="'+currentPost.image+'" width="100%">':''}${controls}`;
+ viewContent.innerHTML=`
+ <b>${currentPost.title}</b><br>
+ <small>${currentPost.author} · ${currentPost.date}</small>
+ <p>${renderMention(currentPost.content).replace(/\n/g,'<br>')}</p>
+ ${currentPost.image?'<img src="'+currentPost.image+'" width="100%">':''}
+ ${controls}
+ `;
+
  renderComments();
 }
 
+// ---------- COMMENTS ----------
 function renderComments(){
- const c=document.getElementById('commentList');
- c.innerHTML='';
- currentPost.comments.forEach(cm=>{
+ commentList.innerHTML='';
+
+ currentPost.comments.forEach((c,i)=>{
   const d=document.createElement('div');
   d.className='comment';
-  d.innerHTML=`<b>${cm.author}</b><br>${cm.text.replace(/\n/g,'<br>')}`;
-  c.appendChild(d);
+  d.innerHTML=`
+   <b>${c.author}</b><br>
+   ${renderMention(c.text)}
+   <input class="input" placeholder="reply..."
+    onkeydown="if(event.key=='Enter') addReply(${i},this.value)">
+  `;
+
+  c.replies.forEach(r=>{
+   const rep=document.createElement('div');
+   rep.className='reply';
+   rep.innerHTML=`<b>${r.author}</b> ${renderMention(r.text)}`;
+   d.appendChild(rep);
+  });
+
+  commentList.appendChild(d);
  });
 }
 
+// ---------- ADD COMMENT ----------
 function addComment(){
  if(!user){alert('로그인 필요');return}
- const txt=document.getElementById('commentInput').value;
+ const txt=commentInput.value.trim();
  if(!txt) return;
- currentPost.comments.push({author:user.id,text:txt});
+
+ currentPost.comments.push({
+  author:user.id,
+  text:txt,
+  replies:[]
+ });
+
  save();
- document.getElementById('commentInput').value='';
+ commentInput.value='';
  renderComments();
 }
 
+// ---------- ADD REPLY ----------
+function addReply(idx,text){
+ if(!user) return;
+ if(!text.trim()) return;
+
+ currentPost.comments[idx].replies.push({
+  author:user.id,
+  text:text
+ });
+
+ save();
+ renderComments();
+}
+
+// ---------- LOGIN ----------
 function login(){
- const id=document.getElementById('loginId').value.trim();
- const pw=document.getElementById('loginPw').value.trim();
+ const id=loginId.value.trim();
+ const pw=loginPw.value.trim();
  if(!id||!pw){alert('정보 입력');return}
  user={id};
  localStorage.setItem('aouse_user',JSON.stringify(user));
- document.getElementById('loginModal').style.display='none';
- document.getElementById('writeBtn').style.display='inline-block';
+ loginModal.style.display='none';
+ writeBtn.style.display='inline-block';
 }
 
+// ---------- WRITE ----------
 function submitPost(){
- if(!user){alert('로그인 필요');return}
- const t=document.getElementById('postTitle').value;
- const c=document.getElementById('postContent').value;
- const pin=document.getElementById('postPinned').checked;
- const img=document.getElementById('postImage').files[0];
- if(!t||!c) return;
+ if(!user) return;
+
+ const t=postTitle.value;
+ const c=postContent.value;
+ const pin=postPinned.checked;
+ const img=postImage.files[0];
 
  const reader=new FileReader();
  reader.onload=function(){
+
   if(editMode){
    currentPost.title=t;
    currentPost.content=c;
@@ -176,52 +245,66 @@ function submitPost(){
    editMode=false;
   } else {
    posts.push({
-    id:Date.now(),title:t,content:c,image:img?reader.result:null,pinned:pin,author:user.id,badge:false,date:new Date().toLocaleString(),comments:[]
+    id:Date.now(),
+    title:t,
+    content:c,
+    image:img?reader.result:null,
+    pinned:pin,
+    author:user.id,
+    badge:false,
+    date:new Date().toLocaleString(),
+    time:Date.now(),
+    comments:[]
    });
   }
+
   save();
   closeWrite();
   render();
  }
+
  if(img) reader.readAsDataURL(img); else reader.onload();
 }
 
+// ---------- EDIT / DELETE ----------
 function editPost(){
  editMode=true;
- document.getElementById('viewModal').style.display='none';
- document.getElementById('writeModal').style.display='flex';
- document.getElementById('postTitle').value=currentPost.title;
- document.getElementById('postContent').value=currentPost.content;
- document.getElementById('postPinned').checked=currentPost.pinned;
+ viewModal.style.display='none';
+ writeModal.style.display='flex';
+ postTitle.value=currentPost.title;
+ postContent.value=currentPost.content;
+ postPinned.checked=currentPost.pinned;
 }
 
 function deletePost(){
  if(!confirm('삭제할까요?')) return;
  posts=posts.filter(p=>p.id!==currentPost.id);
  save();
- document.getElementById('viewModal').style.display='none';
+ viewModal.style.display='none';
  render();
 }
 
+// ---------- CLOSE ----------
 function closeWrite(){
- document.getElementById('writeModal').style.display='none';
- document.getElementById('postTitle').value='';
- document.getElementById('postContent').value='';
- document.getElementById('postPinned').checked=false;
+ writeModal.style.display='none';
+ postTitle.value='';
+ postContent.value='';
+ postPinned.checked=false;
  editMode=false;
 }
 
-// EVENT BINDING
-document.getElementById('loginBtn').onclick=()=>document.getElementById('loginModal').style.display='flex';
-document.getElementById('loginClose').onclick=()=>document.getElementById('loginModal').style.display='none';
-document.getElementById('loginGo').onclick=login;
-document.getElementById('writeBtn').onclick=()=>document.getElementById('writeModal').style.display='flex';
-document.getElementById('writeCancel').onclick=closeWrite;
-document.getElementById('writeSubmit').onclick=submitPost;
-document.getElementById('commentSubmit').onclick=addComment;
-document.getElementById('viewClose').onclick=()=>document.getElementById('viewModal').style.display='none';
+// ---------- EVENTS ----------
+loginBtn.onclick=()=>loginModal.style.display='flex';
+loginClose.onclick=()=>loginModal.style.display='none';
+loginGo.onclick=login;
+writeBtn.onclick=()=>writeModal.style.display='flex';
+writeCancel.onclick=closeWrite;
+writeSubmit.onclick=submitPost;
+commentSubmit.onclick=addComment;
+viewClose.onclick=()=>viewModal.style.display='none';
 
-if(user){document.getElementById('writeBtn').style.display='inline-block'}
+if(user) writeBtn.style.display='inline-block';
+
 render();
 </script>
 
