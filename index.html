@@ -57,7 +57,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 <h2>글쓰기</h2>
 <input class="input" id="postTitle">
 <textarea class="input" id="postContent"></textarea>
-<input class="input" type="file" id="postImage">
+<input class="input" type="file" id="postImage" multiple>
 <label><input type="checkbox" id="postPinned"> pinned</label>
 <div class="flex">
 <button class="btn" id="writeCancel">취소</button>
@@ -89,7 +89,7 @@ if(posts.length===0){
   id:Date.now(),
   title:"!!AOUSE 이용 안내!!",
   content:"안녕하세요! AOUSE 커뮤니티입니다.",
-  image:null,
+  images:[],
   pinned:true,
   author:"ARCEN",
   badge:true,
@@ -100,18 +100,14 @@ if(posts.length===0){
  save();
 }
 
-// ---------- SAVE ----------
 function save(){
  localStorage.setItem('aouse_posts',JSON.stringify(posts));
 }
 
-// ---------- MENTION ----------
 function renderMention(text){
- return text.replace(/@(\w+)/g,
- '<span class="mention">@$1</span>');
+ return text.replace(/@(\w+)/g,'<span class="mention">@$1</span>');
 }
 
-// ---------- RENDER POSTS ----------
 function render(){
  const list=document.getElementById('postList');
  list.innerHTML='';
@@ -136,7 +132,6 @@ function render(){
  });
 }
 
-// ---------- OPEN POST ----------
 function openPost(id){
  currentPost=posts.find(p=>p.id===id);
  viewModal.style.display='flex';
@@ -151,17 +146,16 @@ function openPost(id){
  <b>${currentPost.title}</b><br>
  <small>${currentPost.author} · ${currentPost.date}</small>
  <p>${renderMention(currentPost.content).replace(/\n/g,'<br>')}</p>
- ${currentPost.image?'<img src="'+currentPost.image+'" width="100%">':''}
+ ${currentPost.images
+   ? currentPost.images.map(i=>'<img src="'+i+'" width="100%" style="margin-top:8px">').join('')
+   : ''}
  ${controls}
  `;
-
  renderComments();
 }
 
-// ---------- COMMENTS ----------
 function renderComments(){
  commentList.innerHTML='';
-
  currentPost.comments.forEach((c,i)=>{
   const d=document.createElement('div');
   d.className='comment';
@@ -183,7 +177,6 @@ function renderComments(){
  });
 }
 
-// ---------- ADD COMMENT ----------
 function addComment(){
  if(!user){alert('로그인 필요');return}
  const txt=commentInput.value.trim();
@@ -200,7 +193,6 @@ function addComment(){
  renderComments();
 }
 
-// ---------- ADD REPLY ----------
 function addReply(idx,text){
  if(!user) return;
  if(!text.trim()) return;
@@ -214,7 +206,6 @@ function addReply(idx,text){
  renderComments();
 }
 
-// ---------- LOGIN ----------
 function login(){
  const id=loginId.value.trim();
  const pw=loginPw.value.trim();
@@ -225,30 +216,31 @@ function login(){
  writeBtn.style.display='inline-block';
 }
 
-// ---------- WRITE ----------
 function submitPost(){
  if(!user) return;
 
  const t=postTitle.value;
  const c=postContent.value;
  const pin=postPinned.checked;
- const img=postImage.files[0];
+ const files=[...postImage.files];
 
- const reader=new FileReader();
- reader.onload=function(){
+ let images=[];
+ let loaded=0;
+
+ function finish(){
 
   if(editMode){
    currentPost.title=t;
    currentPost.content=c;
    currentPost.pinned=pin;
-   if(img) currentPost.image=reader.result;
+   if(images.length>0) currentPost.images=images;
    editMode=false;
   } else {
    posts.push({
     id:Date.now(),
     title:t,
     content:c,
-    image:img?reader.result:null,
+    images:images,
     pinned:pin,
     author:user.id,
     badge:false,
@@ -263,10 +255,22 @@ function submitPost(){
   render();
  }
 
- if(img) reader.readAsDataURL(img); else reader.onload();
+ if(files.length===0){
+  finish();
+  return;
+ }
+
+ files.forEach(file=>{
+  const reader=new FileReader();
+  reader.onload=function(){
+   images.push(reader.result);
+   loaded++;
+   if(loaded===files.length) finish();
+  };
+  reader.readAsDataURL(file);
+ });
 }
 
-// ---------- EDIT / DELETE ----------
 function editPost(){
  editMode=true;
  viewModal.style.display='none';
@@ -284,7 +288,6 @@ function deletePost(){
  render();
 }
 
-// ---------- CLOSE ----------
 function closeWrite(){
  writeModal.style.display='none';
  postTitle.value='';
@@ -293,7 +296,6 @@ function closeWrite(){
  editMode=false;
 }
 
-// ---------- EVENTS ----------
 loginBtn.onclick=()=>loginModal.style.display='flex';
 loginClose.onclick=()=>loginModal.style.display='none';
 loginGo.onclick=login;
@@ -310,7 +312,3 @@ render();
 
 </body>
 </html>
-
-
-
-
